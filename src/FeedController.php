@@ -1,6 +1,6 @@
 <?php
 
-namespace Larrock\FeedComponent;
+namespace Larrock\ComponentFeed;
 
 use App\Http\Controllers\Controller;
 use Larrock\ComponentCategory\Models\Category;

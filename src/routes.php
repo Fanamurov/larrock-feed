@@ -1,6 +1,7 @@
 <?php
 
 use Larrock\ComponentFeed\AdminFeedController;
+use Larrock\ComponentFeed\FeedController;
 
 $middlewares = ['web', 'GetSeo'];
 if(file_exists(base_path(). '/vendor/fanamurov/larrock-menu')){
@@ -12,10 +13,10 @@ if(file_exists(base_path(). '/vendor/fanamurov/larrock-blocks')){
 
 Route::group(['middleware' => $middlewares], function(){
     Route::get('/feed/index', [
-        'as' => 'feed.index', 'uses' => 'FeedController@index'
+        'as' => 'feed.index', 'uses' => FeedController::class .'@index'
     ]);
     Route::get('/feed/{category?}/{subcategory?}/{subsubcategory?}', [
-        'as' => 'feed.show', 'uses' => 'FeedController@show'
+        'as' => 'feed.show', 'uses' => FeedController::class .'@show'
     ]);
 });
 
