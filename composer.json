@@ -1,0 +1,22 @@
+{
+    "name": "fanamurov/larrock-feed",
+    "description": "Feeds items component for larrockCMS",
+    "type": "library",
+    "license": "BSD",
+    "authors": [
+        {
+            "name": "Alexandr Fanamurov",
+            "email": "fanamurov@ya.ru"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "Larrock\\ComponentFeed\\": "src",
+            "Larrock\\ComponentFeed\\Models\\": "src/Models"
+        }
+    },
+    "require": {
+        "fanamurov/larrock-core": "^0.1",
+        "fanamurov/larrock-category": "^0.1"
+    }
+}
