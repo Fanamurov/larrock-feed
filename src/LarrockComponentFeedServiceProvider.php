@@ -32,7 +32,7 @@ class LarrockComponentFeedServiceProvider extends ServiceProvider
         $this->app['router']->aliasMiddleware('AddSeofish', AddSeofish::class);
         $this->app->make(FeedComponent::class);
 
-        if ( !class_exists('CreateLarrockMenuTable')){
+        if ( !class_exists('CreateFeedTable')){
             // Publish the migration
             $timestamp = date('Y_m_d_His', time());
 
