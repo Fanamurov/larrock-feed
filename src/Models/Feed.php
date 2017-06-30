@@ -157,13 +157,15 @@ class Feed extends Model implements HasMediaConversions
 
 	public function getGetSeoTitleAttribute()
 	{
-		if($get_seo = Seo::whereIdConnect($this->id)->first()){
-			return $get_seo->seo_title;
-		}
-		if($get_seo = Seo::whereUrlConnect($this->url)->first()){
-			return $get_seo->seo_title;
-		}
-		return NULL;
-		//return $this->title;
+        $value = Cache::remember('seo_title'. $this->id .'_'. $this->url, 1440, function() {
+            if($get_seo = Seo::whereIdConnect($this->id)->first()){
+                return $get_seo->seo_title;
+            }
+            if($get_seo = Seo::whereUrlConnect($this->url)->first()){
+                return $get_seo->seo_title;
+            }
+            return NULL;
+        });
+        return $value;
 	}
 }

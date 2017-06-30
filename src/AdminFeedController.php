@@ -84,21 +84,23 @@ class AdminFeedController extends Controller
 		$data = new $this->config->model();
 		$data->fill($request->all());
         foreach ($this->config->rows as $row){
-            if(get_class($row) === 'App\Helpers\FormBuilder\FormCheckbox'){
-                $data->{$row->name} = $request->input($row->name, NULL);
-            }
-            if(get_class($row) === 'App\Helpers\FormBuilder\FormDate'){
-                $data->{$row->name} = $request->input('date', date('Y-m-d'));
+            if(in_array($row->name, $data->getFillable())){
+                if(get_class($row) === 'Larrock\Core\Helpers\FormBuilder\FormCheckbox'){
+                    $data->{$row->name} = $request->input($row->name, NULL);
+                }
+                if(get_class($row) === 'Larrock\Core\Helpers\FormBuilder\FormDate'){
+                    $data->{$row->name} = $request->input('date', date('Y-m-d'));
+                }
             }
         }
-		$data->user_id = $request->user()->id;
+		$data->user_id = \Auth::user()->id;
 
 		if($data->save()){
-            Alert::add('successAdmin', Lang::get('apps.create.success-temp'))->flash();
+            Alert::add('successAdmin', Lang::get('larrock::apps.create.success-temp'))->flash();
 			return Redirect::to('/admin/'. $this->config->name .'/'. $data->id .'/edit')->withInput();
 		}
 
-        Alert::add('errorAdmin', Lang::get('apps.create.error'));
+        Alert::add('errorAdmin', Lang::get('larrock::apps.create.error'));
         return back()->withInput();
 	}
 
@@ -140,7 +142,7 @@ class AdminFeedController extends Controller
      */
 	public function edit($id)
 	{
-        $data['data'] = $this->config->model::with(['get_category', 'getFiles', 'getImages'])->findOrFail($id);
+        $data['data'] = $this->config->model::with(['get_category'])->findOrFail($id);
         $data['app'] = $this->config->tabbable($data['data']);
 
         $validator = JsValidator::make(Component::_valid_construct($this->config, 'update', $id));
@@ -176,22 +178,24 @@ class AdminFeedController extends Controller
 
 		$data = $this->config->model::find($id);
         foreach ($this->config->rows as $row){
-            if(get_class($row) === 'Larrock\Core\Helpers\FormBuilder\FormCheckbox'){
-                $data->{$row->name} = $request->input($row->name, NULL);
-            }
-            if(get_class($row) === 'Larrock\Core\Helpers\FormBuilder\FormDate'){
-                $data->{$row->name} = $request->input('date', date('Y-m-d'));
+            if(in_array($row->name, $data->getFillable())){
+                if(get_class($row) === 'Larrock\Core\Helpers\FormBuilder\FormCheckbox'){
+                    $data->{$row->name} = $request->input($row->name, NULL);
+                }
+                if(get_class($row) === 'Larrock\Core\Helpers\FormBuilder\FormDate'){
+                    $data->{$row->name} = $request->input('date', date('Y-m-d'));
+                }
             }
         }
 		$data->user_id = $request->user()->id;
 
 		if($data->fill($request->all())->save()){
-            Alert::add('successAdmin', Lang::get('apps.update.success', ['name' => $request->input('title')]))->flash();
+            Alert::add('successAdmin', Lang::get('larrock::apps.update.success', ['name' => $request->input('title')]))->flash();
 			\Cache::flush();
 			return back();
 		}
 
-        Alert::add('warning', Lang::get('apps.update.nothing', ['name' => $request->input('title')]))->flash();
+        Alert::add('warning', Lang::get('larrock::apps.update.nothing', ['name' => $request->input('title')]))->flash();
 		return back()->withInput();
 	}
 
@@ -209,14 +213,14 @@ class AdminFeedController extends Controller
             $name = $data->title;
             $category = $data->category;
             if($data->delete()){
-                Alert::add('successAdmin', Lang::get('apps.delete.success', ['name' => $name]))->flash();
+                Alert::add('successAdmin', Lang::get('larrock::apps.delete.success', ['name' => $name]))->flash();
                 \Cache::flush();
 
                 if($request->get('place') === 'material'){
                     return Redirect::to('/admin/'. $this->config->name .'/'. $category);
                 }
             }else{
-                Alert::add('errorAdmin', Lang::get('apps.delete.error', ['name' => $name]))->flash();
+                Alert::add('errorAdmin', Lang::get('larrock::apps.delete.error', ['name' => $name]))->flash();
             }
         }else{
             Alert::add('errorAdmin', 'Такого материала больше нет')->flash();
