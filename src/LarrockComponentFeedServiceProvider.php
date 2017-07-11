@@ -14,6 +14,7 @@ class LarrockComponentFeedServiceProvider extends ServiceProvider
      */
     public function boot()
     {
+        $this->loadRoutesFrom(__DIR__.'/routes.php');
         $this->loadViewsFrom(__DIR__.'/views', 'larrock');
 
         $this->publishes([
@@ -28,9 +29,9 @@ class LarrockComponentFeedServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        include __DIR__.'/routes.php';
-        $this->app['router']->aliasMiddleware('AddSeofish', AddSeofish::class);
         $this->app->make(FeedComponent::class);
+
+        $this->app['router']->aliasMiddleware('AddSeofish', AddSeofish::class);
 
         if ( !class_exists('CreateFeedTable')){
             // Publish the migration
