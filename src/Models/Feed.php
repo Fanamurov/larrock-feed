@@ -4,14 +4,14 @@ namespace Larrock\ComponentFeed\Models;
 
 use Cache;
 use Illuminate\Database\Eloquent\Model;
-use Larrock\ComponentCategory\Models\Category;
+use Larrock\ComponentCategory\Facades\LarrockCategory;
 use Larrock\Core\Models\Seo;
 use Nicolaslopezj\Searchable\SearchableTrait;
 use DB;
 use Spatie\MediaLibrary\HasMedia\HasMediaTrait;
 use Spatie\MediaLibrary\HasMedia\Interfaces\HasMedia;
 use Spatie\MediaLibrary\HasMedia\Interfaces\HasMediaConversions;
-use Larrock\ComponentFeed;
+use Larrock\ComponentFeed\Facades\LarrockFeed;
 
 /**
  * App\Models\Feed
@@ -82,82 +82,73 @@ class Feed extends Model implements HasMediaConversions
 
     protected $table = 'feed';
 
-	protected $fillable = ['title', 'short', 'description', 'category', 'url', 'date', 'position', 'active'];
+    protected $fillable = ['title', 'short', 'description', 'category', 'url', 'date', 'position', 'active'];
 
     protected $dates = ['created_at', 'updated_at', 'date'];
 
-	protected $guarded = ['user_id'];
+    protected $guarded = ['user_id'];
 
-	protected $casts = [
-		'position' => 'integer',
-		'active' => 'integer'
-	];
+    protected $casts = [
+        'position' => 'integer',
+        'active' => 'integer'
+    ];
 
-	public function scopeCategoryInfo()
-	{
-		return DB::table('feed')
-			->leftJoin('category', 'feed.category', '=', 'category.id')
-			->get();
-	}
+    public function scopeCategoryInfo()
+    {
+        return DB::table(LarrockFeed::getConfig()->table)
+            ->leftJoin(LarrockCategory::getConfig()->table, LarrockFeed::getConfig()->table. '.category', '=', LarrockCategory::getConfig()->table. '.id')
+            ->get();
+    }
 
-	public function get_category()
-	{
-		return $this->hasOne(Category::class, 'id', 'category');
-	}
+    public function get_category()
+    {
+        return $this->hasOne(LarrockCategory::getModelName(), 'id', 'category');
+    }
 
-	public function get_seo()
-	{
-		return $this->hasOne(Seo::class, 'id_connect', 'id')->whereTypeConnect('feed');
-	}
+    public function get_seo()
+    {
+        return $this->hasOne(Seo::class, 'id_connect', 'id')->whereTypeConnect('feed');
+    }
 
     public function getImages()
     {
-        $config = new ComponentFeed\FeedComponent();
-        return $this->hasMany('Spatie\MediaLibrary\Media', 'model_id', 'id')->where([['model_type', '=', $config->model], ['collection_name', '=', 'images']])->orderBy('order_column', 'DESC');
+        return $this->hasMany('Spatie\MediaLibrary\Media', 'model_id', 'id')->where([['model_type', '=', LarrockFeed::getModelName()], ['collection_name', '=', 'images']])->orderBy('order_column', 'DESC');
     }
     public function getFirstImage()
     {
-        $config = new ComponentFeed\FeedComponent();
-        return $this->hasOne('Spatie\MediaLibrary\Media', 'model_id', 'id')->where([['model_type', '=', $config->model], ['collection_name', '=', 'images']])->orderBy('order_column', 'DESC');
+        return $this->hasOne('Spatie\MediaLibrary\Media', 'model_id', 'id')->where([['model_type', '=', LarrockFeed::getModelName()], ['collection_name', '=', 'images']])->orderBy('order_column', 'DESC');
     }
 
     public function getFiles()
     {
-        $config = new ComponentFeed\FeedComponent();
-        return $this->hasMany('Spatie\MediaLibrary\Media', 'model_id', 'id')->where([['model_type', '=', $config->model], ['collection_name', '=', 'files']])->orderBy('order_column', 'DESC');
+        return $this->hasMany('Spatie\MediaLibrary\Media', 'model_id', 'id')->where([['model_type', '=', LarrockFeed::getModelName()], ['collection_name', '=', 'files']])->orderBy('order_column', 'DESC');
     }
 
-	public function getFirstImageAttribute()
-	{
-		$value = Cache::remember('image_f_feed'. $this->id, 1440, function() {
-			if($get_image = $this->getMedia('images')->sortByDesc('order_column')->first()){
-				return $get_image->getUrl();
-			}
+    public function getFirstImageAttribute()
+    {
+        return Cache::remember('image_f_feed'. $this->id, 1440, function() {
+            if($get_image = $this->getMedia('images')->sortByDesc('order_column')->first()){
+                return $get_image->getUrl();
+            }
             return '/_assets/_front/_images/empty_big.png';
-		});
-		return $value;
-	}
+        });
+    }
 
-	public function getFullUrlAttribute()
-	{
-		$full_url = Cache::remember('url_feed'. $this->id, 1440, function() {
-			if($search_parent = Category::whereId($this->get_category->parent)->first()){
-				if($search_parent_2 = Category::whereId($search_parent->parent)->first()){
-					if($search_parent_3 = Category::whereId($search_parent->parent_2)->first()){
-						return '/feed/'. $search_parent_3->url .'/'. $search_parent_2->url .'/' . $search_parent->url .'/'. $this->get_category->url .'/'. $this->url;
-					}
-                    return '/feed/'. $search_parent_2->url .'/' . $search_parent->url .'/'. $this->get_category->url .'/'. $this->url;
-				}
-                return '/feed/' . $search_parent->url .'/'. $this->get_category->url .'/'. $this->url;
-			}
-            return '/feed/'. $this->get_category->url .'/'. $this->url;
-		});
-		return $full_url;
-	}
+    public function getFullUrlAttribute()
+    {
+        return Cache::remember('url_feed'. $this->id, 1440, function() {
+            $url = '/feed';
+            foreach ($this->get_category()->first()->parent_tree as $category){
+                $url .= '/'. $category->url;
+            }
+            $url .= '/'. $this->url;
+            return $url;
+        });
+    }
 
-	public function getGetSeoTitleAttribute()
-	{
-        $value = Cache::remember('seo_title'. $this->id .'_'. $this->url, 1440, function() {
+    public function getGetSeoTitleAttribute()
+    {
+        return Cache::remember('seo_title'. $this->id .'_'. $this->url, 1440, function() {
             if($get_seo = Seo::whereIdConnect($this->id)->first()){
                 return $get_seo->seo_title;
             }
@@ -166,6 +157,5 @@ class Feed extends Model implements HasMediaConversions
             }
             return NULL;
         });
-        return $value;
-	}
+    }
 }

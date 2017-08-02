@@ -2,7 +2,9 @@
 
 namespace Larrock\ComponentFeed;
 
+use Larrock\ComponentCategory\Facades\LarrockCategory;
 use Larrock\ComponentCategory\Models\Category;
+use Larrock\ComponentFeed\Facades\LarrockFeed;
 use Larrock\ComponentFeed\Models\Feed;
 use Larrock\Core\Helpers\FormBuilder\FormCategory;
 use Larrock\Core\Helpers\FormBuilder\FormDate;
@@ -16,7 +18,7 @@ class FeedComponent extends Component
     {
         $this->name = $this->table = 'feed';
         $this->title = 'Ленты';
-        $this->model = Feed::class;
+        $this->model = \config('larrock.models.feed', Feed::class);
         $this->description = 'Страницы с привязкой к определенным разделам';
         $this->addRows()->addPositionAndActive()->isSearchable()->addPlugins();
     }
@@ -51,23 +53,23 @@ class FeedComponent extends Component
 
     public function renderAdminMenu()
     {
-        $count = \Cache::remember('count-data-admin-'. $this->name, 1440, function(){
-            return Feed::count(['id']);
+        $count = \Cache::remember('count-data-admin-'. LarrockFeed::getName(), 1440, function(){
+            return LarrockFeed::getModel()->count(['id']);
         });
         $dropdown = Category::whereComponent('feed')->whereLevel(1)->orderBy('position', 'desc')->get(['id', 'title', 'url']);
-        return view('larrock::admin.sectionmenu.types.dropdown', ['count' => $count, 'app' => $this, 'url' => '/admin/'. $this->name, 'dropdown' => $dropdown]);
+        return view('larrock::admin.sectionmenu.types.dropdown', ['count' => $count, 'app' => LarrockFeed::getConfig(), 'url' => '/admin/'. LarrockFeed::getName(), 'dropdown' => $dropdown]);
     }
 
     public function createSitemap()
     {
-        return Feed::whereActive(1)->whereHas('get_category', function ($q){
+        return LarrockFeed::getModel()->whereActive(1)->whereHas('get_category', function ($q){
             $q->where('sitemap', '=', 1);
         })->get();
     }
 
     public function createRSS()
     {
-        return Feed::whereActive(1)->whereHas('get_category', function ($q){
+        return LarrockFeed::getModel()->whereActive(1)->whereHas('get_category', function ($q){
             $q->where('rss', '=', 1);
         })->get();
     }

@@ -3,8 +3,8 @@
 namespace Larrock\ComponentFeed;
 
 use App\Http\Controllers\Controller;
-use Larrock\ComponentCategory\Models\Category;
-use Larrock\ComponentFeed\Models\Feed;
+use Larrock\ComponentCategory\Facades\LarrockCategory;
+use Larrock\ComponentFeed\Facades\LarrockFeed;
 use Larrock\Core\Helpers\Plugins\RenderGallery;
 use Breadcrumbs;
 use Cache;
@@ -24,8 +24,8 @@ class FeedController extends Controller
 	{
 		$page = $request->get('page', 1);
 		$data = Cache::remember('feed_index'.$page, 1440, function() use ($page) {
-			$data['category'] = Category::whereType('feed')->whereActive(1)->whereLevel(1)->orderBy('created_at', 'desc')->with(['get_feedActive'])->get();
-			$data['data'] = Feed::whereActive(1)->with('get_category')->orderBy('date', 'desc')->skip(($page-1)*8)->paginate(8);
+			$data['category'] = LarrockCategory::getModel()->whereType('feed')->whereActive(1)->whereLevel(1)->orderBy('created_at', 'desc')->with(['get_feedActive'])->get();
+			$data['data'] = LarrockFeed::getModel()->whereActive(1)->with('get_category')->orderBy('date', 'desc')->skip(($page-1)*8)->paginate(8);
 			return $data;
 		});
 
@@ -34,11 +34,8 @@ class FeedController extends Controller
 
 	public function show(Request $request)
 	{
-        $RenderGallery = new RenderGallery;
-
 	    $params = \Route::current()->parameters();
-        if(Feed::whereUrl(last($params))->first()){
-            //Это статья
+        if(LarrockFeed::getModel()->whereUrl(last($params))->first()){
             return $this->getItem(last($params));
         }
 
@@ -46,8 +43,8 @@ class FeedController extends Controller
         $category = last($params);
 		$page = $request->get('page', 1);
 		$data['data'] = Cache::remember('feed_'.$category.'_'.$page, 1440, function() use ($category, $page, $RenderGallery) {
-			//$data['categorys'] = Category::whereType('feed')->whereActive(1)->whereLevel(1)->orderBy('created_at', 'desc')->with(['get_feedActive'])->get();
-			$data = Category::whereUrl($category)->whereActive(1)->firstOrFail();
+            $RenderGallery = new RenderGallery;
+			$data = LarrockCategory::getModel()->whereUrl($category)->whereActive(1)->firstOrFail();
 			$data->get_feedActive = $data->get_feedActive()->orderBy('date', 'desc')->skip(($page-1)*8)->paginate(8);
 			foreach ($data->get_feedActive as $key => $value){
                 $data->get_feedActive->{$key} = $RenderGallery->renderGallery($value);
@@ -69,25 +66,19 @@ class FeedController extends Controller
 
 	public function getItem($item)
 	{
-        $RenderGallery = new RenderGallery();
-
 		$data = Cache::remember(sha1('feed_item_'. $item), 1440, function() use ($item, $RenderGallery) {
-			$data['data'] = Feed::whereUrl($item)->with(['get_category', 'getImages'])->firstOrFail();
+            $RenderGallery = new RenderGallery();
+			$data['data'] = LarrockFeed::getModel()->whereUrl($item)->with(['get_category', 'getImages'])->firstOrFail();
             $data['data'] = $RenderGallery->renderGallery($data['data']);
 			return $data;
 		});
 
         Breadcrumbs::register('feed.item', function($breadcrumbs) use ($data)
         {
-        	if(count($data['data']->get_category->get_parent) > 0){
-        		if(count($data['data']->get_category->get_parent->get_parent) > 0){
-					$breadcrumbs->push($data['data']->get_category->get_parent->get_parent->title, $data['data']->get_category->get_parent->get_parent->full_url);
-				}
-				$breadcrumbs->push($data['data']->get_category->get_parent->title, $data['category']->get_parent->full_url);
-			}
-            $breadcrumbs->push($data['data']->get_category->title, $data['data']->get_category->full_url);
+            foreach ($data['data']->get_category->parent_tree as $category){
+                $breadcrumbs->push($category->title, $category->full_url);
+            }
             $breadcrumbs->push($data['data']->title);
-
         });
 
 		\View::share('sharing_type', 'feed');

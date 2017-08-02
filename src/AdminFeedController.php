@@ -6,7 +6,6 @@ use Breadcrumbs;
 use Cache;
 use Illuminate\Http\Request;
 
-use App\Http\Controllers\Controller;
 use JsValidator;
 use Alert;
 use Lang;
@@ -16,19 +15,19 @@ use Larrock\Core\Component;
 use Validator;
 use Redirect;
 use View;
+use Larrock\ComponentFeed\Facades\LarrockFeed;
+use Larrock\ComponentCategory\Facades\LarrockCategory;
+use Larrock\Core\AdminController;
 
-class AdminFeedController extends Controller
+class AdminFeedController extends AdminController
 {
-	protected $config;
-
 	public function __construct()
 	{
-        $component = new FeedComponent();
-        $this->config = $component->shareConfig();
+        $this->config = LarrockFeed::shareConfig();
 
         Breadcrumbs::setView('larrock::admin.breadcrumb.breadcrumb');
-		Breadcrumbs::register('admin.'. $this->config->name .'.index', function($breadcrumbs){
-			$breadcrumbs->push($this->config->title, '/admin/'. $this->config->name);
+		Breadcrumbs::register('admin.'. LarrockFeed::getName() .'.index', function($breadcrumbs){
+			$breadcrumbs->push(LarrockFeed::getTitle(), '/admin/'. LarrockFeed::getName());
 		});
 	}
 
@@ -39,8 +38,8 @@ class AdminFeedController extends Controller
      */
 	public function index()
 	{
-        $data['app_category'] = new CategoryComponent();
-		$data['categories'] = Category::whereComponent('feed')->whereLevel(1)->orderBy('position', 'desc')->paginate(30);
+        $data['app_category'] = LarrockCategory::getConfig();
+		$data['categories'] = LarrockCategory::getModel()->whereComponent('feed')->whereLevel(1)->orderBy('position', 'desc')->paginate(30);
 		return view('larrock::admin.admin-builder.categories', $data);
 	}
 
@@ -53,12 +52,12 @@ class AdminFeedController extends Controller
 	 */
 	public function create(Request $request)
 	{
-		if( !$category = Category::whereComponent('feed')->first()){
-			Category::create(['title' => 'Новый раздел', 'url' => str_slug('Новый раздел')]);
-			$category = Category::whereComponent('feed')->first();
+		if( !$category = LarrockCategory::getModel()->whereComponent('feed')->first()){
+            LarrockCategory::getModel()->create(['title' => 'Новый раздел', 'url' => str_slug('Новый раздел')]);
+			$category = LarrockCategory::getModel()->whereComponent('feed')->first();
 		}
 		Cache::flush();
-		$test = Request::create('/admin/'. $this->config->name, 'POST', [
+		$test = Request::create('/admin/'. LarrockFeed::getName(), 'POST', [
 			'title' => 'Новый материал',
 			'url' => str_slug('novyy-material'),
 			'category' => $request->get('category', $category->id),
@@ -81,9 +80,8 @@ class AdminFeedController extends Controller
 			return back()->withInput($request->except('password'))->withErrors($validator);
 		}
 
-		$data = new $this->config->model();
-		$data->fill($request->all());
-        foreach ($this->config->rows as $row){
+		$data = LarrockFeed::getModel()->fill($request->all());
+        foreach (LarrockFeed::getRows() as $row){
             if(in_array($row->name, $data->getFillable())){
                 if(get_class($row) === 'Larrock\Core\Helpers\FormBuilder\FormCheckbox'){
                     $data->{$row->name} = $request->input($row->name, NULL);
@@ -97,7 +95,7 @@ class AdminFeedController extends Controller
 
 		if($data->save()){
             Alert::add('successAdmin', Lang::get('larrock::apps.create.success-temp'))->flash();
-			return Redirect::to('/admin/'. $this->config->name .'/'. $data->id .'/edit')->withInput();
+			return Redirect::to('/admin/'. LarrockFeed::getName() .'/'. $data->id .'/edit')->withInput();
 		}
 
         Alert::add('errorAdmin', Lang::get('larrock::apps.create.error'));
@@ -112,23 +110,16 @@ class AdminFeedController extends Controller
      */
 	public function show($id)
 	{
-        $data['category'] = Category::whereId($id)->with(['get_child', 'get_parent'])->first();
-        $data['data'] = $this->config->model::whereCategory($data['category']->id)->orderByDesc('position')->orderByDesc('date')->paginate('30');
-        $data['app_category'] = new CategoryComponent();
+        $data['category'] = LarrockCategory::getModel()->whereId($id)->with(['get_child', 'get_parent'])->first();
+        $data['data'] = LarrockFeed::getModel()->whereCategory($data['category']->id)->orderByDesc('position')->orderByDesc('date')->paginate('30');
+        $data['app_category'] = LarrockCategory::getConfig();
 
-		Breadcrumbs::register('admin.'. $this->config->name .'.category', function($breadcrumbs, $data)
+		Breadcrumbs::register('admin.'. LarrockFeed::getName() .'.category', function($breadcrumbs, $data)
 		{
-			$breadcrumbs->parent('admin.'. $this->config->name .'.index');
-			if($find_parent = Category::find($data->parent)){
-				$breadcrumbs->push($find_parent->title, url('admin.'. $this->config->name .'.show', $find_parent->id));
-				if($find_parent = Category::find($find_parent->parent)){
-					$breadcrumbs->push($find_parent->title, url('admin.'. $this->config->name .'.show', $find_parent->id));
-					if($find_parent2 = Category::find($find_parent->parent)){
-						$breadcrumbs->push($find_parent2->title, url('admin.'. $this->config->name .'.show', $find_parent2->id));
-					}
-				}
-			}
-			$breadcrumbs->push($data->title, url('admin.feed.show', $data->id));
+			$breadcrumbs->parent('admin.'. LarrockFeed::getName() .'.index');
+            foreach($data->parent_tree as $item){
+                $breadcrumbs->push($item->title, '/admin/'. $item->component .'/'. $item->id);
+            }
 		});
 
 		return view('larrock::admin.admin-builder.categories', $data);
@@ -145,18 +136,17 @@ class AdminFeedController extends Controller
         $data['data'] = $this->config->model::with(['get_category'])->findOrFail($id);
         $data['app'] = $this->config->tabbable($data['data']);
 
-        $validator = JsValidator::make(Component::_valid_construct($this->config, 'update', $id));
+        $validator = JsValidator::make(Component::_valid_construct(LarrockFeed::getConfig(), 'update', $id));
         View::share('validator', $validator);
 
-
-		Breadcrumbs::register('admin.'. $this->config->name .'.edit', function($breadcrumbs, $data)
+		Breadcrumbs::register('admin.'. LarrockFeed::getName() .'.edit', function($breadcrumbs, $data)
 		{
-			$breadcrumbs->parent('admin.'. $this->config->name .'.index');
+			$breadcrumbs->parent('admin.'. LarrockFeed::getName() .'.index');
             foreach($data->get_category->parent_tree as $item){
-                $breadcrumbs->push($item->title, '/admin/'. $this->config->name .'/'. $item->id);
+                $breadcrumbs->push($item->title, '/admin/'. LarrockFeed::getName() .'/'. $item->id);
             }
 
-            $breadcrumbs->push($data->title, '/admin/'. $this->config->name .'/'. $data->id);
+            $breadcrumbs->push($data->title, '/admin/'. LarrockFeed::getName() .'/'. $data->id);
 		});
 
 		return view('larrock::admin.admin-builder.edit', $data);
@@ -171,13 +161,13 @@ class AdminFeedController extends Controller
      */
 	public function update(Request $request, $id)
 	{
-		$validator = Validator::make($request->all(), Component::_valid_construct($this->config, 'update', $id));
+		$validator = Validator::make($request->all(), Component::_valid_construct(LarrockFeed::getConfig(), 'update', $id));
 		if($validator->fails()){
 			return back()->withInput($request->except('password'))->withErrors($validator);
 		}
 
-		$data = $this->config->model::find($id);
-        foreach ($this->config->rows as $row){
+		$data = LarrockFeed::getModel()->find($id);
+        foreach (LarrockFeed::getRows() as $row){
             if(in_array($row->name, $data->getFillable())){
                 if(get_class($row) === 'Larrock\Core\Helpers\FormBuilder\FormCheckbox'){
                     $data->{$row->name} = $request->input($row->name, NULL);
@@ -208,7 +198,7 @@ class AdminFeedController extends Controller
      */
 	public function destroy(Request $request, $id)
 	{
-		if($data = $this->config->model::find($id)){
+		if($data = LarrockFeed::getModel()->find($id)){
             $data->clearMediaCollection();
             $name = $data->title;
             $category = $data->category;
@@ -217,7 +207,7 @@ class AdminFeedController extends Controller
                 \Cache::flush();
 
                 if($request->get('place') === 'material'){
-                    return Redirect::to('/admin/'. $this->config->name .'/'. $category);
+                    return Redirect::to('/admin/'. LarrockFeed::getName() .'/'. $category);
                 }
             }else{
                 Alert::add('errorAdmin', Lang::get('larrock::apps.delete.error', ['name' => $name]))->flash();

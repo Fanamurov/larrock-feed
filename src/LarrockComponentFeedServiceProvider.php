@@ -3,7 +3,7 @@
 namespace Larrock\ComponentFeed;
 
 use Illuminate\Support\ServiceProvider;
-use Larrock\Core\Middleware\AddSeofish;
+use Larrock\ComponentFeed\Middleware\AddSeofish;
 
 class LarrockComponentFeedServiceProvider extends ServiceProvider
 {
@@ -29,7 +29,10 @@ class LarrockComponentFeedServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        $this->app->make(FeedComponent::class);
+        $this->app->singleton('larrockfeed', function() {
+            $class = config('larrock.components.feed', FeedComponent::class);
+            return new $class;
+        });
 
         $this->app['router']->aliasMiddleware('AddSeofish', AddSeofish::class);
 

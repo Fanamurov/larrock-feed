@@ -1,10 +1,10 @@
 <?php
 
-namespace Larrock\Core\Middleware;
+namespace Larrock\ComponentFeed\Middleware;
 
 use Cache;
 use Closure;
-use Larrock\ComponentFeed\Models\Feed;
+use Larrock\ComponentFeed\Facades\LarrockFeed;
 
 class AddSeofish
 {
@@ -18,7 +18,7 @@ class AddSeofish
     public function handle($request, Closure $next)
     {
         $seofish = Cache::remember('seofish_mod', 1440, function() {
-            return Feed::whereCategory(2)->whereActive(1)->orderBy('position', 'DESC')->get();
+            return LarrockFeed::getModel()->whereCategory(config('larrock.feed.seofish_category_id'))->whereActive(1)->orderBy('position', 'DESC')->get();
         });
         \View::share('seofish', $seofish);
 
