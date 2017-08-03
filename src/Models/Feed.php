@@ -82,33 +82,33 @@ class Feed extends Model implements HasMediaConversions
 
     protected $table = 'feed';
 
-    protected $fillable = ['title', 'short', 'description', 'category', 'url', 'date', 'position', 'active'];
+	protected $fillable = ['title', 'short', 'description', 'category', 'url', 'date', 'position', 'active'];
 
     protected $dates = ['created_at', 'updated_at', 'date'];
 
-    protected $guarded = ['user_id'];
+	protected $guarded = ['user_id'];
 
-    protected $casts = [
-        'position' => 'integer',
-        'active' => 'integer'
-    ];
+	protected $casts = [
+		'position' => 'integer',
+		'active' => 'integer'
+	];
 
-    public function scopeCategoryInfo()
-    {
-        return DB::table(LarrockFeed::getConfig()->table)
-            ->leftJoin(LarrockCategory::getConfig()->table, LarrockFeed::getConfig()->table. '.category', '=', LarrockCategory::getConfig()->table. '.id')
-            ->get();
-    }
+	public function scopeCategoryInfo()
+	{
+		return DB::table(LarrockFeed::getConfig()->table)
+			->leftJoin(LarrockCategory::getConfig()->table, LarrockFeed::getConfig()->table. '.category', '=', LarrockCategory::getConfig()->table. '.id')
+			->get();
+	}
 
-    public function get_category()
-    {
-        return $this->hasOne(LarrockCategory::getModelName(), 'id', 'category');
-    }
+	public function get_category()
+	{
+		return $this->hasOne(LarrockCategory::getModelName(), 'id', 'category');
+	}
 
-    public function get_seo()
-    {
-        return $this->hasOne(Seo::class, 'id_connect', 'id')->whereTypeConnect('feed');
-    }
+	public function get_seo()
+	{
+		return $this->hasOne(Seo::class, 'seo_id_connect', 'id')->whereSeoTypeConnect('feed');
+	}
 
     public function getImages()
     {
@@ -124,38 +124,38 @@ class Feed extends Model implements HasMediaConversions
         return $this->hasMany('Spatie\MediaLibrary\Media', 'model_id', 'id')->where([['model_type', '=', LarrockFeed::getModelName()], ['collection_name', '=', 'files']])->orderBy('order_column', 'DESC');
     }
 
-    public function getFirstImageAttribute()
-    {
+	public function getFirstImageAttribute()
+	{
         return Cache::remember('image_f_feed'. $this->id, 1440, function() {
-            if($get_image = $this->getMedia('images')->sortByDesc('order_column')->first()){
-                return $get_image->getUrl();
-            }
+			if($get_image = $this->getMedia('images')->sortByDesc('order_column')->first()){
+				return $get_image->getUrl();
+			}
             return '/_assets/_front/_images/empty_big.png';
-        });
-    }
+		});
+	}
 
-    public function getFullUrlAttribute()
-    {
+	public function getFullUrlAttribute()
+	{
         return Cache::remember('url_feed'. $this->id, 1440, function() {
-            $url = '/feed';
-            foreach ($this->get_category()->first()->parent_tree as $category){
-                $url .= '/'. $category->url;
+		    $url = '/feed';
+		    foreach ($this->get_category()->first()->parent_tree as $category){
+		        $url .= '/'. $category->url;
             }
             $url .= '/'. $this->url;
             return $url;
-        });
-    }
+		});
+	}
 
-    public function getGetSeoTitleAttribute()
-    {
+	public function getGetSeoTitleAttribute()
+	{
         return Cache::remember('seo_title'. $this->id .'_'. $this->url, 1440, function() {
-            if($get_seo = Seo::whereIdConnect($this->id)->first()){
+            if($get_seo = Seo::whereSeoIdConnect($this->id)->first()){
                 return $get_seo->seo_title;
             }
-            if($get_seo = Seo::whereUrlConnect($this->url)->first()){
+            if($get_seo = Seo::whereSeoUrlConnect($this->url)->first()){
                 return $get_seo->seo_title;
             }
             return NULL;
         });
-    }
+	}
 }

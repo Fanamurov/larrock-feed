@@ -75,7 +75,7 @@ class AdminFeedController extends AdminController
      */
 	public function store(Request $request)
 	{
-		$validator = Validator::make($request->all(), $this->config->valid);
+		$validator = Validator::make($request->all(), LarrockFeed::getValid());
 		if($validator->fails()){
 			return back()->withInput($request->except('password'))->withErrors($validator);
 		}
@@ -133,8 +133,8 @@ class AdminFeedController extends AdminController
      */
 	public function edit($id)
 	{
-        $data['data'] = $this->config->model::with(['get_category'])->findOrFail($id);
-        $data['app'] = $this->config->tabbable($data['data']);
+        $data['data'] = LarrockUsers::getModel()->with(['get_category'])->findOrFail($id);
+        $data['app'] = LarrockUsers::tabbable($data['data']);
 
         $validator = JsValidator::make(Component::_valid_construct(LarrockFeed::getConfig(), 'update', $id));
         View::share('validator', $validator);
