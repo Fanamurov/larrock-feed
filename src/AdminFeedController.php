@@ -133,8 +133,8 @@ class AdminFeedController extends AdminController
      */
 	public function edit($id)
 	{
-        $data['data'] = LarrockUsers::getModel()->with(['get_category'])->findOrFail($id);
-        $data['app'] = LarrockUsers::tabbable($data['data']);
+        $data['data'] = LarrockFeed::getModel()->with(['get_category'])->findOrFail($id);
+        $data['app'] = LarrockFeed::tabbable($data['data']);
 
         $validator = JsValidator::make(Component::_valid_construct(LarrockFeed::getConfig(), 'update', $id));
         View::share('validator', $validator);
@@ -146,7 +146,8 @@ class AdminFeedController extends AdminController
                 $breadcrumbs->push($item->title, '/admin/'. LarrockFeed::getName() .'/'. $item->id);
             }
 
-            $breadcrumbs->push($data->title, '/admin/'. LarrockFeed::getName() .'/'. $data->id);
+            $current_level = LarrockFeed::getModel()->whereCategory($data->get_category->first()->id)->orderBy('updated_at', 'DESC')->take('15')->get();
+            $breadcrumbs->push($data->title, '/admin/'. LarrockFeed::getName() .'/'. $data->id, ['current_level' => $current_level]);
 		});
 
 		return view('larrock::admin.admin-builder.edit', $data);

@@ -42,7 +42,7 @@ class FeedController extends Controller
         //Это должен быть раздел
         $category = last($params);
 		$page = $request->get('page', 1);
-		$data['data'] = Cache::remember('feed_'.$category.'_'.$page, 1440, function() use ($category, $page, $RenderGallery) {
+		$data['data'] = Cache::remember('feed_'.$category.'_'.$page, 1440, function() use ($category, $page) {
             $RenderGallery = new RenderGallery;
 			$data = LarrockCategory::getModel()->whereUrl($category)->whereActive(1)->firstOrFail();
 			$data->get_feedActive = $data->get_feedActive()->orderBy('date', 'desc')->skip(($page-1)*8)->paginate(8);
@@ -66,7 +66,7 @@ class FeedController extends Controller
 
 	public function getItem($item)
 	{
-		$data = Cache::remember(sha1('feed_item_'. $item), 1440, function() use ($item, $RenderGallery) {
+		$data = Cache::remember(sha1('feed_item_'. $item), 1440, function() use ($item) {
             $RenderGallery = new RenderGallery();
 			$data['data'] = LarrockFeed::getModel()->whereUrl($item)->with(['get_category', 'getImages'])->firstOrFail();
             $data['data'] = $RenderGallery->renderGallery($data['data']);
