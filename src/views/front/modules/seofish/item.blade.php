@@ -3,7 +3,7 @@
     <div class="uk-width-1-1 uk-width-medium-1-2">
         @foreach($seofish as $key => $item)
             @if($key & 1)
-                <div class="block-seofish-item">
+                <div class="block-seofish-item uk-position-relative">
                     <h4>{{ $item->title }}</h4>
                     <div>
                         @level(2)
@@ -20,7 +20,7 @@
         @foreach($seofish as $key => $item)
             @if($key & 1 || $key === 0)
             @else
-                <div class="block-seofish-item">
+                <div class="block-seofish-item uk-position-relative">
                     <h4>{{ $item->title }}</h4>
                     <div>
                         @level(2)
