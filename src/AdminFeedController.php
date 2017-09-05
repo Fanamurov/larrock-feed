@@ -25,7 +25,7 @@ class AdminFeedController extends AdminController
 	{
         $this->config = LarrockFeed::shareConfig();
 
-        Breadcrumbs::setView('larrock::admin.breadcrumb.breadcrumb');
+        \Config::set('breadcrumbs.view', 'larrock::admin.breadcrumb.breadcrumb');
 		Breadcrumbs::register('admin.'. LarrockFeed::getName() .'.index', function($breadcrumbs){
 			$breadcrumbs->push(LarrockFeed::getTitle(), '/admin/'. LarrockFeed::getName());
 		});
