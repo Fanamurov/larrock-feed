@@ -25,7 +25,7 @@ class FeedComponent extends Component
 
     protected function addPlugins()
     {
-        $this->addPluginImages()->addPluginFiles()->addPluginSeo()->addAnonsToModule(17);
+        $this->addPluginImages()->addPluginFiles()->addPluginSeo()->addAnonsToModule(config('larrock.feed.anonsCategory'));
         return $this;
     }
 
