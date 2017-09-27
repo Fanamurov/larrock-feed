@@ -11,6 +11,7 @@ use Larrock\Core\Helpers\FormBuilder\FormDate;
 use Larrock\Core\Helpers\FormBuilder\FormInput;
 use Larrock\Core\Helpers\FormBuilder\FormTextarea;
 use Larrock\Core\Component;
+use Larrock\Core\Helpers\Tree;
 
 class FeedComponent extends Component
 {
@@ -62,15 +63,14 @@ class FeedComponent extends Component
 
     public function createSitemap()
     {
-        return LarrockFeed::getModel()->whereActive(1)->whereHas('get_category', function ($q){
-            $q->where('sitemap', '=', 1);
-        })->get();
-    }
-
-    public function createRSS()
-    {
-        return LarrockFeed::getModel()->whereActive(1)->whereHas('get_category', function ($q){
-            $q->where('rss', '=', 1);
-        })->get();
+        $tree = new Tree();
+        
+        if($activeCategory = $tree->listActiveCategories(LarrockCategory::getModel()->whereActive(1)->whereComponent('feed')->whereParent(NULL)->get())){
+            $table = LarrockCategory::getConfig()->table;
+            return LarrockFeed::getModel()->whereActive(1)->whereHas('get_category', function ($q) use ($activeCategory, $table){
+                $q->where($table .'.sitemap', '=', 1)->whereIn($table .'.id', $activeCategory);
+            })->get();
+        }
+        return [];
     }
 }

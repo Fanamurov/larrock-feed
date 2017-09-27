@@ -73,6 +73,12 @@ class FeedController extends Controller
 			return $data;
 		});
 
+		foreach ($data['data']->get_category->parent_tree as $category){
+            if($category->active !== 1){
+                return abort('404', 'Раздел не опубликован');
+            }
+        }
+
         Breadcrumbs::register('feed.item', function($breadcrumbs) use ($data)
         {
             foreach ($data['data']->get_category->parent_tree as $category){
