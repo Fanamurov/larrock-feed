@@ -1,5 +1,11 @@
 @extends('larrock::front.main')
-@section('title') Feed @endsection
+@section('title')
+    @if($seo_midd['url'])
+        {{ $seo_midd['url'] }}
+    @else
+        Feed
+    @endif
+@endsection
 
 @section('content')
     <div class="pageBlogCategory">

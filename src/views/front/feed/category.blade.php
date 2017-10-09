@@ -1,5 +1,11 @@
 @extends('larrock::front.main')
-@section('title') {{ $data->title }} @endsection
+@section('title')
+    @if($seo_midd['url'])
+        {{ $seo_midd['url'] }}
+    @else
+        {{ $data->title }} {{ $seo_midd['postfix_global'] }}
+    @endif
+@endsection
 
 @section('content')
     <div class="pageFeedCategory">

@@ -1,5 +1,11 @@
 @extends('larrock::front.main')
-@section('title') {{ $data->get_seo_title or $data->title }}. {{ $data->get_category->title }} @endsection
+@section('title')
+    @if($seo_midd['url'])
+        {{ $seo_midd['url'] }}
+    @else
+        {{ $data->get_seo_title or $data->title }}. {{ $data->get_category->title }} {{ $seo_midd['postfix_global'] }}
+    @endif
+@endsection
 @section('description') {!! strip_tags($data->short) !!} @endsection
 @section('share_image'){!! env('APP_URL') !!}{{ $data->first_image }}@endsection
 
