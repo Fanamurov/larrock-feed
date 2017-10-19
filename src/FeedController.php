@@ -35,7 +35,7 @@ class FeedController extends Controller
 	public function show(Request $request)
 	{
 	    $params = \Route::current()->parameters();
-        if(LarrockFeed::getModel()->whereUrl(last($params))->first()){
+        if(count($params) > 1 && LarrockFeed::getModel()->whereUrl(last($params))->first()){
             return $this->getItem(last($params));
         }
 
