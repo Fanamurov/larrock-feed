@@ -7,11 +7,9 @@ use Cache;
 use Illuminate\Http\Request;
 
 use JsValidator;
-use Alert;
 use Lang;
-use Larrock\ComponentCategory\CategoryComponent;
-use Larrock\ComponentCategory\Models\Category;
 use Larrock\Core\Component;
+use Session;
 use Validator;
 use Redirect;
 use View;
@@ -94,11 +92,11 @@ class AdminFeedController extends AdminController
 		$data->user_id = \Auth::user()->id;
 
 		if($data->save()){
-            Alert::add('successAdmin', Lang::get('larrock::apps.create.success-temp'))->flash();
+            Session::push('message.success', Lang::get('larrock::apps.create.success-temp'));
 			return Redirect::to('/admin/'. LarrockFeed::getName() .'/'. $data->id .'/edit')->withInput();
 		}
 
-        Alert::add('errorAdmin', Lang::get('larrock::apps.create.error'));
+        Session::push('message.danger', Lang::get('larrock::apps.create.error'));
         return back()->withInput();
 	}
 
@@ -181,12 +179,12 @@ class AdminFeedController extends AdminController
 		$data->user_id = $request->user()->id;
 
 		if($data->fill($request->all())->save()){
-            Alert::add('successAdmin', Lang::get('larrock::apps.update.success', ['name' => $request->input('title')]))->flash();
+            Session::push('message.success', Lang::get('larrock::apps.update.success', ['name' => $request->input('title')]));
 			\Cache::flush();
 			return back();
 		}
 
-        Alert::add('warning', Lang::get('larrock::apps.update.nothing', ['name' => $request->input('title')]))->flash();
+        Session::push('message.danger', Lang::get('larrock::apps.update.nothing', ['name' => $request->input('title')]));
 		return back()->withInput();
 	}
 
@@ -204,17 +202,17 @@ class AdminFeedController extends AdminController
             $name = $data->title;
             $category = $data->category;
             if($data->delete()){
-                Alert::add('successAdmin', Lang::get('larrock::apps.delete.success', ['name' => $name]))->flash();
+                Session::push('message.success',  Lang::get('larrock::apps.delete.success', ['name' => $name]));
                 \Cache::flush();
 
                 if($request->get('place') === 'material'){
                     return Redirect::to('/admin/'. LarrockFeed::getName() .'/'. $category);
                 }
             }else{
-                Alert::add('errorAdmin', Lang::get('larrock::apps.delete.error', ['name' => $name]))->flash();
+                Session::push('message.danger', Lang::get('larrock::apps.delete.error', ['name' => $name]));
             }
         }else{
-            Alert::add('errorAdmin', 'Такого материала больше нет')->flash();
+            Session::push('message.danger', 'Такого материала больше нет');
         }
 
         return back();
