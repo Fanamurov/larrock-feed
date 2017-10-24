@@ -20,7 +20,7 @@
                         <img class="all-width" src="{{ $item->getFirstMediaUrl('images', '250x250') }}" alt="{{ $item->title }}">
                     @endif
                 </div>
-                <div class="col-xs-24 col-sm-18 col-md-16">
+                <div class="col-xs-24 col-sm-18 col-md-16 uk-position-relative">
                     @role('Админ|Модератор')
                     <a class="editAdmin" href="/admin/feed/{{ $item->id }}/edit">Редактировать</a>
                     @endrole

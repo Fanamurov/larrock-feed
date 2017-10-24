@@ -11,7 +11,7 @@
 @section('share_image')http://santa-avia.ru{{ $data->first_image }}@endsection
 
 @section('content')
-    <div class="pageFeedDirectories">
+    <div class="pageFeedDirectories uk-position-relative">
         @role('Админ|Модератор')
             <a class="editAdmin" href="/admin/category/{{ $data->id }}/edit">Редактировать элемент</a>
         @endrole

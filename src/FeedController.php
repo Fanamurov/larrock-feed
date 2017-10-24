@@ -52,10 +52,11 @@ class FeedController extends Controller
 			return $data;
 		});
 
-        Breadcrumbs::register('feed.category', function($breadcrumbs) use ($data)
-        {
-            $breadcrumbs->parent('feed.index');
-            $breadcrumbs->push($data['data']->title);
+        Breadcrumbs::register('feed.category', function($breadcrumbs) use ($data){
+            //$breadcrumbs->parent('feed.index');
+            foreach ($data['data']->parent_tree as $category){
+                $breadcrumbs->push($category->title, $category->full_url);
+            }
         });
 
 		\View::share('sharing_type', 'category');
@@ -79,8 +80,7 @@ class FeedController extends Controller
             }
         }
 
-        Breadcrumbs::register('feed.item', function($breadcrumbs) use ($data)
-        {
+        Breadcrumbs::register('feed.item', function($breadcrumbs) use ($data){
             foreach ($data['data']->get_category->parent_tree as $category){
                 $breadcrumbs->push($category->title, $category->full_url);
             }

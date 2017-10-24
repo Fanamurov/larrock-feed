@@ -18,7 +18,7 @@ Route::group(['middleware' => $middlewares], function(){
     Route::get('/feed/index', [
         'as' => 'feed.index', 'uses' => FeedController::class .'@index'
     ]);
-    Route::get('/feed/{category?}/{subcategory?}/{subsubcategory?}', [
+    Route::get('/feed/{category?}/{subcategory?}/{subsubcategory?}/{subsubcategory2?}/{subsubcategory3?}', [
         'as' => 'feed.show', 'uses' => FeedController::class .'@show'
     ]);
 });

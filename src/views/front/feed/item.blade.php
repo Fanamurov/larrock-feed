@@ -10,7 +10,7 @@
 @section('share_image'){!! env('APP_URL') !!}{{ $data->first_image }}@endsection
 
 @section('content')
-    <div class="pageFeedItem">
+    <div class="pageFeedItem uk-position-relative">
         @role('Админ|Модератор')
             <a class="admin_edit" href="/admin/feed/{{ $data->id }}/edit">Редактировать материал</a>
         @endrole
