@@ -18,7 +18,7 @@
                 <div class="uk-width-1-1 uk-width-medium-2-10">
                     <p class="date uk-text-muted uk-text-right">{!! \Carbon\Carbon::parse($item->date)->format('d.m.Y') !!}г.</p>
                 </div>
-                <div class="uk-width-1-1 uk-width-medium-8-10">
+                <div class="uk-width-1-1 uk-width-medium-8-10 uk-position-relative">
                     @role('Админ|Модератор')
                     <a class="admin_edit" href="/admin/feed/{{ $item->id }}/edit">Редактировать</a>
                     @endrole
@@ -30,7 +30,7 @@
 
         @foreach($data->get_child as $item)
             <div class="pageFeedCategory-item uk-grid">
-                <div class="uk-width-1-1">
+                <div class="uk-width-1-1 uk-position-relative">
                     @role('Админ|Модератор')
                     <a class="admin_edit" href="/admin/category/{{ $item->id }}/edit">Редактировать</a>
                     @endrole

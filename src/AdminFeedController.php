@@ -144,7 +144,7 @@ class AdminFeedController extends AdminController
                 $breadcrumbs->push($item->title, '/admin/'. LarrockFeed::getName() .'/'. $item->id);
             }
 
-            $current_level = LarrockFeed::getModel()->whereCategory($data->get_category->first()->id)->orderBy('updated_at', 'DESC')->take('15')->get();
+            $current_level = LarrockFeed::getModel()->whereCategory($data->get_category->id)->orderBy('updated_at', 'DESC')->take('15')->get();
             $breadcrumbs->push($data->title, '/admin/'. LarrockFeed::getName() .'/'. $data->id, ['current_level' => $current_level]);
 		});
 
