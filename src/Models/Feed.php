@@ -3,6 +3,7 @@
 namespace Larrock\ComponentFeed\Models;
 
 use Cache;
+use Larrock\Core\Helpers\Plugins\RenderPlugins;
 use Illuminate\Database\Eloquent\Model;
 use Larrock\ComponentCategory\Facades\LarrockCategory;
 use Larrock\Core\Models\Seo;
@@ -154,12 +155,44 @@ class Feed extends Model implements HasMediaConversions
     {
         return Cache::remember('seo_title'. $this->id .'_'. $this->url, 1440, function() {
             if($get_seo = Seo::whereSeoIdConnect($this->id)->first()){
-                return $get_seo->seo_title;
+                if($get_seo->seo_title){
+                    return $get_seo->seo_title;
+                }
             }
             if($get_seo = Seo::whereSeoUrlConnect($this->url)->first()){
-                return $get_seo->seo_title;
+                if($get_seo->seo_title){
+                    return $get_seo->seo_title;
+                }
             }
             return NULL;
+        });
+    }
+
+    /**
+     * Замена тегов плагинов на их данные
+     *
+     * @return mixed
+     */
+    public function getShortRenderAttribute()
+    {
+        return \Cache::remember('ShortRenderFeed'. $this->id, 1440, function(){
+            $renderPlugins = new RenderPlugins($this->short, $this);
+            $render = $renderPlugins->renderBlocks()->renderImageGallery()->renderFilesGallery();
+            return $render->rendered_html;
+        });
+    }
+
+    /**
+     * Замена тегов плагинов на их данные
+     *
+     * @return mixed
+     */
+    public function getDescriptionRenderAttribute()
+    {
+        return \Cache::remember('DescriptionRenderFeed'. $this->id, 1440, function(){
+            $renderPlugins = new RenderPlugins($this->description, $this);
+            $render = $renderPlugins->renderBlocks()->renderImageGallery()->renderFilesGallery();
+            return $render->rendered_html;
         });
     }
 }

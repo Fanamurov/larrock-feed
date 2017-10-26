@@ -19,8 +19,8 @@
                 {!! Breadcrumbs::render('feed.item', $data) !!}
             </div>
             <div class="uk-clearfix"></div>
-            <div class="page_description">{!! $data->short !!}</div>
-            <div class="page_description">{!! $data->description !!}</div>
+            <div class="page_description">{!! $data->short_render !!}</div>
+            <div class="page_description">{!! $data->description_render !!}</div>
         </div>
     </div>
 @endsection
