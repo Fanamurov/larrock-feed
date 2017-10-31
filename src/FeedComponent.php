@@ -2,6 +2,7 @@
 
 namespace Larrock\ComponentFeed;
 
+use Cache;
 use Larrock\ComponentCategory\Facades\LarrockCategory;
 use Larrock\ComponentCategory\Models\Category;
 use Larrock\ComponentFeed\Facades\LarrockFeed;
@@ -72,5 +73,26 @@ class FeedComponent extends Component
             })->get();
         }
         return [];
+    }
+
+    public function search()
+    {
+        return Cache::remember('search'. $this->name, 1440, function(){
+            $data = [];
+            foreach (LarrockFeed::getModel()->whereActive(1)->with(['get_categoryActive'])->get(['id', 'title', 'category', 'url']) as $item){
+                $data[$item->id]['id'] = $item->id;
+                $data[$item->id]['title'] = $item->title;
+                $data[$item->id]['full_url'] = $item->full_url;
+                $data[$item->id]['component'] = $this->name;
+                $data[$item->id]['category'] = NULL;
+                if($item->get_categoryActive){
+                    $data[$item->id]['category'] = $item->get_categoryActive->title;
+                }
+            }
+            if(count($data) === 0){
+                return NULL;
+            }
+            return $data;
+        });
     }
 }

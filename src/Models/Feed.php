@@ -97,6 +97,11 @@ class Feed extends Model implements HasMediaConversions
         return $this->hasOne(LarrockCategory::getModelName(), 'id', 'category');
     }
 
+    public function get_categoryActive()
+    {
+        return $this->hasOne(LarrockCategory::getModelName(), 'id', 'category')->whereActive('1');
+    }
+
     public function getFullUrlAttribute()
     {
         return Cache::remember('url_feed'. $this->id, 1440, function() {
