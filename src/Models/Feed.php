@@ -121,7 +121,12 @@ class Feed extends Model implements HasMediaConversions
      */
     public function getShortRenderAttribute()
     {
-        return \Cache::remember('ShortRenderFeed'. $this->id, 1440, function(){
+        $cache_key = 'ShortRender'. $this->table.'-'. $this->id;
+        if(\Auth::check()){
+            $cache_key .= '-'. \Auth::user()->role->first()->level;
+        }
+
+        return \Cache::remember($cache_key, 1440, function(){
             $renderPlugins = new RenderPlugins($this->short, $this);
             $render = $renderPlugins->renderBlocks()->renderImageGallery()->renderFilesGallery();
             return $render->rendered_html;
@@ -135,7 +140,12 @@ class Feed extends Model implements HasMediaConversions
      */
     public function getDescriptionRenderAttribute()
     {
-        return \Cache::remember('DescriptionRenderFeed'. $this->id, 1440, function(){
+        $cache_key = 'DescriptionRender'. $this->table.'-'. $this->id;
+        if(\Auth::check()){
+            $cache_key .= '-'. \Auth::user()->role->first()->level;
+        }
+
+        return \Cache::remember($cache_key, 1440, function(){
             $renderPlugins = new RenderPlugins($this->description, $this);
             $render = $renderPlugins->renderBlocks()->renderImageGallery()->renderFilesGallery();
             return $render->rendered_html;
