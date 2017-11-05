@@ -48,7 +48,6 @@ class FeedController extends Controller
 		});
 
         Breadcrumbs::register('feed.category', function($breadcrumbs) use ($data){
-            //$breadcrumbs->parent('feed.index');
             foreach ($data['data']->parent_tree as $category){
                 $breadcrumbs->push($category->title, $category->full_url);
             }
@@ -57,7 +56,7 @@ class FeedController extends Controller
 		\View::share('sharing_type', 'category');
 		\View::share('sharing_id', $data['data']->id);
 
-		return view('larrock::front.feed.category', $data);
+		return view()->first(['larrock::front.feed.category'. $category, 'larrock::front.feed.category'], $data);
 	}
 
 	public function getItem($item)
@@ -83,9 +82,6 @@ class FeedController extends Controller
 		\View::share('sharing_type', 'feed');
 		\View::share('sharing_id', $data['data']->id);
 
-		if(\View::exists('larrock::front.feed.'. $item)){
-			return view('larrock::front.feed.'. $item, $data);
-		}
-        return view('larrock::front.feed.item', $data);
+		return view()->first(['larrock::front.feed.'. $item, 'larrock::front.feed.item'], $data);
 	}
 }
