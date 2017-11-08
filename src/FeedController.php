@@ -56,7 +56,7 @@ class FeedController extends Controller
 		\View::share('sharing_type', 'category');
 		\View::share('sharing_id', $data['data']->id);
 
-		return view()->first(['larrock::front.feed.category'. $category, 'larrock::front.feed.category'], $data);
+		return view()->first(['larrock::front.feed.category.'. $category, 'larrock::front.feed.category'], $data);
 	}
 
 	public function getItem($item)
