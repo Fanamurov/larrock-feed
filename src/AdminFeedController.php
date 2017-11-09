@@ -3,22 +3,20 @@
 namespace Larrock\ComponentFeed;
 
 use Breadcrumbs;
-use Cache;
-use Illuminate\Http\Request;
-
-use JsValidator;
-use Lang;
-use Larrock\Core\Component;
-use Session;
-use Validator;
-use Redirect;
+use Illuminate\Routing\Controller;
+use Larrock\Core\Traits\AdminMethodsCreate;
+use Larrock\Core\Traits\AdminMethodsDestroy;
+use Larrock\Core\Traits\AdminMethodsEdit;
+use Larrock\Core\Traits\AdminMethodsStore;
+use Larrock\Core\Traits\AdminMethodsUpdate;
 use View;
 use Larrock\ComponentFeed\Facades\LarrockFeed;
 use Larrock\ComponentCategory\Facades\LarrockCategory;
-use Larrock\Core\AdminController;
 
-class AdminFeedController extends AdminController
+class AdminFeedController extends Controller
 {
+    use AdminMethodsStore, AdminMethodsUpdate, AdminMethodsDestroy, AdminMethodsCreate, AdminMethodsEdit;
+
 	public function __construct()
 	{
         $this->config = LarrockFeed::shareConfig();
@@ -39,65 +37,6 @@ class AdminFeedController extends AdminController
         $data['app_category'] = LarrockCategory::getConfig();
 		$data['categories'] = LarrockCategory::getModel()->whereComponent('feed')->whereLevel(1)->orderBy('position', 'desc')->paginate(30);
 		return view('larrock::admin.admin-builder.categories', $data);
-	}
-
-	/**
-	 * Show the form for creating a new resource.
-	 *
-	 * @param Request                     $request
-	 *
-	 * @return \Illuminate\Http\Response
-	 */
-	public function create(Request $request)
-	{
-		if( !$category = LarrockCategory::getModel()->whereComponent('feed')->first()){
-            LarrockCategory::getModel()->create(['title' => 'Новый раздел', 'url' => str_slug('Новый раздел')]);
-			$category = LarrockCategory::getModel()->whereComponent('feed')->first();
-		}
-		Cache::flush();
-		$test = Request::create('/admin/'. LarrockFeed::getName(), 'POST', [
-			'title' => 'Новый материал',
-			'url' => str_slug('novyy-material'),
-			'category' => $request->get('category', $category->id),
-			'active' => 0
-		]);
-		return $this->store($test);
-	}
-
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request $request
-     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Http\Response
-     * @throws \Illuminate\Database\Eloquent\MassAssignmentException
-     */
-	public function store(Request $request)
-	{
-		$validator = Validator::make($request->all(), LarrockFeed::getValid());
-		if($validator->fails()){
-			return back()->withInput($request->except('password'))->withErrors($validator);
-		}
-
-		$data = LarrockFeed::getModel()->fill($request->all());
-        foreach (LarrockFeed::getRows() as $row){
-            if(in_array($row->name, $data->getFillable())){
-                if(get_class($row) === 'Larrock\Core\Helpers\FormBuilder\FormCheckbox'){
-                    $data->{$row->name} = $request->input($row->name, NULL);
-                }
-                if(get_class($row) === 'Larrock\Core\Helpers\FormBuilder\FormDate'){
-                    $data->{$row->name} = $request->input('date', date('Y-m-d'));
-                }
-            }
-        }
-		$data->user_id = \Auth::user()->id;
-
-		if($data->save()){
-            Session::push('message.success', Lang::get('larrock::apps.create.success-temp'));
-			return Redirect::to('/admin/'. LarrockFeed::getName() .'/'. $data->id .'/edit')->withInput();
-		}
-
-        Session::push('message.danger', Lang::get('larrock::apps.create.error'));
-        return back()->withInput();
 	}
 
     /**
@@ -121,100 +60,5 @@ class AdminFeedController extends AdminController
 		});
 
 		return view('larrock::admin.admin-builder.categories', $data);
-	}
-
-	/**
-	 * Show the form for editing the specified resource.
-	 *
-	 * @param  int  $id
-	 * @return \Illuminate\Http\Response|View
-     */
-	public function edit($id)
-	{
-        $data['data'] = LarrockFeed::getModel()->with(['get_category'])->findOrFail($id);
-        $data['app'] = LarrockFeed::tabbable($data['data']);
-
-        $validator = JsValidator::make(Component::_valid_construct(LarrockFeed::getConfig(), 'update', $id));
-        View::share('validator', $validator);
-
-		Breadcrumbs::register('admin.'. LarrockFeed::getName() .'.edit', function($breadcrumbs, $data)
-		{
-			$breadcrumbs->parent('admin.'. LarrockFeed::getName() .'.index');
-            foreach($data->get_category->parent_tree as $item){
-                $breadcrumbs->push($item->title, '/admin/'. LarrockFeed::getName() .'/'. $item->id);
-            }
-
-            $current_level = LarrockFeed::getModel()->whereCategory($data->get_category->id)->orderBy('updated_at', 'DESC')->take('15')->get();
-            $breadcrumbs->push($data->title, '/admin/'. LarrockFeed::getName() .'/'. $data->id, ['current_level' => $current_level]);
-		});
-
-		return view('larrock::admin.admin-builder.edit', $data);
-	}
-
-	/**
-	 * Update the specified resource in storage.
-	 *
-	 * @param  \Illuminate\Http\Request  $request
-	 * @param  int  $id
-	 * @return \Illuminate\Http\RedirectResponse|\Illuminate\Http\Response
-     */
-	public function update(Request $request, $id)
-	{
-		$validator = Validator::make($request->all(), Component::_valid_construct(LarrockFeed::getConfig(), 'update', $id));
-		if($validator->fails()){
-			return back()->withInput($request->except('password'))->withErrors($validator);
-		}
-
-		$data = LarrockFeed::getModel()->find($id);
-        foreach (LarrockFeed::getRows() as $row){
-            if(in_array($row->name, $data->getFillable())){
-                if(get_class($row) === 'Larrock\Core\Helpers\FormBuilder\FormCheckbox'){
-                    $data->{$row->name} = $request->input($row->name, NULL);
-                }
-                if(get_class($row) === 'Larrock\Core\Helpers\FormBuilder\FormDate'){
-                    $data->{$row->name} = $request->input('date', date('Y-m-d'));
-                }
-            }
-        }
-		$data->user_id = $request->user()->id;
-
-		if($data->fill($request->all())->save()){
-            Session::push('message.success', Lang::get('larrock::apps.update.success', ['name' => $request->input('title')]));
-			\Cache::flush();
-			return back();
-		}
-
-        Session::push('message.danger', Lang::get('larrock::apps.update.nothing', ['name' => $request->input('title')]));
-		return back()->withInput();
-	}
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param Request $request
-     * @param  int $id
-     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Http\Response
-     */
-	public function destroy(Request $request, $id)
-	{
-		if($data = LarrockFeed::getModel()->find($id)){
-            $data->clearMediaCollection();
-            $name = $data->title;
-            $category = $data->category;
-            if($data->delete()){
-                Session::push('message.success',  Lang::get('larrock::apps.delete.success', ['name' => $name]));
-                \Cache::flush();
-
-                if($request->get('place') === 'material'){
-                    return Redirect::to('/admin/'. LarrockFeed::getName() .'/'. $category);
-                }
-            }else{
-                Session::push('message.danger', Lang::get('larrock::apps.delete.error', ['name' => $name]));
-            }
-        }else{
-            Session::push('message.danger', 'Такого материала больше нет');
-        }
-
-        return back();
 	}
 }
