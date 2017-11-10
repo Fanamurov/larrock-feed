@@ -75,18 +75,29 @@ class FeedComponent extends Component
         return [];
     }
 
-    public function search()
+    public function search($admin)
     {
-        return Cache::remember('search'. $this->name, 1440, function(){
+        return Cache::remember('search'. $this->name. $admin, 1440, function() use ($admin){
             $data = [];
-            foreach (LarrockFeed::getModel()->whereActive(1)->with(['get_categoryActive'])->get(['id', 'title', 'category', 'url']) as $item){
+            if($admin){
+                $items = LarrockFeed::getModel()->with(['get_category'])->get(['id', 'title', 'category', 'url']);
+            }else{
+                $items = LarrockFeed::getModel()->whereActive(1)->with(['get_categoryActive'])->get(['id', 'title', 'category', 'url']);
+            }
+            foreach ($items as $item){
                 $data[$item->id]['id'] = $item->id;
                 $data[$item->id]['title'] = $item->title;
                 $data[$item->id]['full_url'] = $item->full_url;
                 $data[$item->id]['component'] = $this->name;
                 $data[$item->id]['category'] = NULL;
-                if($item->get_categoryActive){
-                    $data[$item->id]['category'] = $item->get_categoryActive->title;
+                if($admin){
+                    if($item->get_category){
+                        $data[$item->id]['category'] = $item->get_category->title;
+                    }
+                }else{
+                    if($item->get_categoryActive){
+                        $data[$item->id]['category'] = $item->get_categoryActive->title;
+                    }
                 }
             }
             if(count($data) === 0){
