@@ -75,7 +75,7 @@ class FeedComponent extends Component
         return [];
     }
 
-    public function search($admin)
+    public function search($admin = NULL)
     {
         return Cache::remember('search'. $this->name. $admin, 1440, function() use ($admin){
             $data = [];
