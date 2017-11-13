@@ -9,6 +9,7 @@ use Larrock\ComponentCategory\Facades\LarrockCategory;
 use Larrock\Core\Traits\GetFilesAndImages;
 use Larrock\Core\Traits\GetSeo;
 use Nicolaslopezj\Searchable\SearchableTrait;
+use Larrock\Core\Component;
 use DB;
 use Spatie\MediaLibrary\HasMedia\HasMediaTrait;
 use Spatie\MediaLibrary\HasMedia\Interfaces\HasMediaConversions;
@@ -53,6 +54,11 @@ use Larrock\ComponentFeed\Facades\LarrockFeed;
  */
 class Feed extends Model implements HasMediaConversions
 {
+    /**
+     * @var $this Component
+     */
+    public $component;
+
     use HasMediaTrait;
     use GetFilesAndImages;
     use GetSeo;
@@ -62,9 +68,7 @@ class Feed extends Model implements HasMediaConversions
     {
         parent::__construct($attributes);
         $this->fillable(LarrockFeed::addFillableUserRows(['title', 'short', 'description', 'category', 'url', 'date', 'position', 'active']));
-        $this->table = LarrockFeed::getConfig()->table;
-        $this->modelName = LarrockFeed::getModelName();
-        $this->componentName = 'feed';
+        $this->component = LarrockFeed::getConfig();
     }
 
     // no need for this, but you can define default searchable columns:
@@ -121,7 +125,7 @@ class Feed extends Model implements HasMediaConversions
      */
     public function getShortRenderAttribute()
     {
-        $cache_key = 'ShortRender'. $this->table.'-'. $this->id;
+        $cache_key = 'ShortRender'. $this->component->table.'-'. $this->id;
         if(\Auth::check()){
             $cache_key .= '-'. \Auth::user()->role->first()->level;
         }
@@ -140,7 +144,7 @@ class Feed extends Model implements HasMediaConversions
      */
     public function getDescriptionRenderAttribute()
     {
-        $cache_key = 'DescriptionRender'. $this->table.'-'. $this->id;
+        $cache_key = 'DescriptionRender'. $this->component->table.'-'. $this->id;
         if(\Auth::check()){
             $cache_key .= '-'. \Auth::user()->role->first()->level;
         }
