@@ -69,6 +69,7 @@ class Feed extends Model implements HasMediaConversions
         parent::__construct($attributes);
         $this->fillable(LarrockFeed::addFillableUserRows(['title', 'short', 'description', 'category', 'url', 'date', 'position', 'active']));
         $this->component = LarrockFeed::getConfig();
+        $this->table = LarrockFeed::getTable();
     }
 
     // no need for this, but you can define default searchable columns:
