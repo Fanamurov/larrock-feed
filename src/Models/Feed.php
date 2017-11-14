@@ -57,7 +57,7 @@ class Feed extends Model implements HasMediaConversions
     /**
      * @var $this Component
      */
-    public $component;
+    public $config;
 
     use HasMediaTrait;
     use GetFilesAndImages;
@@ -68,7 +68,7 @@ class Feed extends Model implements HasMediaConversions
     {
         parent::__construct($attributes);
         $this->fillable(LarrockFeed::addFillableUserRows(['title', 'short', 'description', 'category', 'url', 'date', 'position', 'active']));
-        $this->component = LarrockFeed::getConfig();
+        $this->config = LarrockFeed::getConfig();
         $this->table = LarrockFeed::getTable();
     }
 
@@ -126,7 +126,7 @@ class Feed extends Model implements HasMediaConversions
      */
     public function getShortRenderAttribute()
     {
-        $cache_key = 'ShortRender'. $this->component->table.'-'. $this->id;
+        $cache_key = 'ShortRender'. $this->config->table.'-'. $this->id;
         if(\Auth::check()){
             $cache_key .= '-'. \Auth::user()->role->first()->level;
         }
@@ -145,7 +145,7 @@ class Feed extends Model implements HasMediaConversions
      */
     public function getDescriptionRenderAttribute()
     {
-        $cache_key = 'DescriptionRender'. $this->component->table.'-'. $this->id;
+        $cache_key = 'DescriptionRender'. $this->config->table.'-'. $this->id;
         if(\Auth::check()){
             $cache_key .= '-'. \Auth::user()->role->first()->level;
         }
