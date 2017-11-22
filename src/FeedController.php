@@ -13,8 +13,8 @@ class FeedController extends Controller
 {
 	public function __construct()
 	{
-        Breadcrumbs::register('feed.index', function($breadcrumbs)
-        {
+	    $this->middleware(LarrockFeed::combineFrontMiddlewares());
+        Breadcrumbs::register('feed.index', function($breadcrumbs){
             $breadcrumbs->push('Ленты', '/feed/index');
         });
 	}
