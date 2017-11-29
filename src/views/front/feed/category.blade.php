@@ -23,7 +23,7 @@
                     <a class="admin_edit" href="/admin/feed/{{ $item->id }}/edit">Редактировать</a>
                     @endrole
                     <h3 class="uk-margin-top-remove"><a href="{{ $item->full_url }}">{{ $item->title }}</a></h3>
-                    <div class="pageFeedCategory-item_short">{!! $data->short_render !!}</div>
+                    <div class="pageFeedCategory-item_short">{!! $item->short_render !!}</div>
                 </div>
             </div>
         @endforeach
@@ -35,7 +35,7 @@
                     <a class="admin_edit" href="/admin/category/{{ $item->id }}/edit">Редактировать</a>
                     @endrole
                     <h3 class="uk-margin-top-remove"><a href="{{ $item->full_url }}">{{ $item->title }}</a></h3>
-                    <div class="pageFeedCategory-item_short">{!! $data->short_render !!}</div>
+                    <div class="pageFeedCategory-item_short">{!! $item->short_render !!}</div>
                 </div>
             </div>
         @endforeach
