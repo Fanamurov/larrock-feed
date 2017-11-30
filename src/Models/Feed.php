@@ -7,6 +7,7 @@ use Larrock\Core\Helpers\Plugins\RenderPlugins;
 use Illuminate\Database\Eloquent\Model;
 use Larrock\ComponentCategory\Facades\LarrockCategory;
 use Larrock\Core\Traits\GetFilesAndImages;
+use Larrock\Core\Traits\GetLink;
 use Larrock\Core\Traits\GetSeo;
 use Nicolaslopezj\Searchable\SearchableTrait;
 use Larrock\Core\Component;
@@ -63,11 +64,12 @@ class Feed extends Model implements HasMediaConversions
     use GetFilesAndImages;
     use GetSeo;
     use SearchableTrait;
+    use GetLink;
 
     public function __construct(array $attributes = [])
     {
         parent::__construct($attributes);
-        $this->fillable(LarrockFeed::addFillableUserRows(['title', 'short', 'description', 'category', 'url', 'date', 'position', 'active']));
+        $this->fillable(LarrockFeed::addFillableUserRows([]));
         $this->config = LarrockFeed::getConfig();
         $this->table = LarrockFeed::getTable();
     }

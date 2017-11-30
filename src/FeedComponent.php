@@ -10,6 +10,7 @@ use Larrock\ComponentFeed\Models\Feed;
 use Larrock\Core\Helpers\FormBuilder\FormCategory;
 use Larrock\Core\Helpers\FormBuilder\FormDate;
 use Larrock\Core\Helpers\FormBuilder\FormInput;
+use Larrock\Core\Helpers\FormBuilder\FormTagsLink;
 use Larrock\Core\Helpers\FormBuilder\FormTextarea;
 use Larrock\Core\Component;
 use Larrock\Core\Helpers\Tree;
@@ -36,19 +37,23 @@ class FeedComponent extends Component
         $row = new FormCategory('category', 'Раздел');
         $this->rows['category'] = $row->setValid('required')
             ->setConnect(Category::class, 'get_category')->setWhereConnect('component', 'feed')
-            ->setMaxItems(1);
+            ->setMaxItems(1)->setFillable();
 
         $row = new FormInput('title', 'Заголовок');
-        $this->rows['title'] = $row->setValid('max:255|required')->setTypo();
+        $this->rows['title'] = $row->setValid('max:255|required')->setTypo()->setFillable();
 
         $row = new FormTextarea('short', 'Анонс');
-        $this->rows['short'] = $row->setTypo()->setHelp('выводится на странице списка материалов, а так же в начале материала');
+        $this->rows['short'] = $row->setTypo()->setHelp('выводится на странице списка материалов, а так же в начале материала')
+            ->setFillable();
 
         $row = new FormTextarea('description', 'Полный текст');
-        $this->rows['description'] = $row->setTypo()->setHelp('выводится на странице материала после анонса');
+        $this->rows['description'] = $row->setTypo()->setHelp('выводится на странице материала после анонса')->setFillable();
 
         $row = new FormDate('date', 'Дата материала');
-        $this->rows['date'] = $row->setTab('other', 'Дата, вес, активность');
+        $this->rows['date'] = $row->setTab('other', 'Дата, вес, активность')->setFillable();
+
+        $row = new FormTagsLink('link', 'Связь');
+        $this->rows['link'] = $row->setModelParent($this->model)->setModelChild('Larrock\ComponentFeed\Models\Feed');
 
         return $this;
     }
