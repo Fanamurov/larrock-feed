@@ -5,7 +5,6 @@ namespace Larrock\ComponentFeed;
 use App\Http\Controllers\Controller;
 use Larrock\ComponentCategory\Facades\LarrockCategory;
 use Larrock\ComponentFeed\Facades\LarrockFeed;
-use Breadcrumbs;
 use Cache;
 use Illuminate\Http\Request;
 
@@ -14,9 +13,6 @@ class FeedController extends Controller
 	public function __construct()
 	{
 	    $this->middleware(LarrockFeed::combineFrontMiddlewares());
-        Breadcrumbs::register('feed.index', function($breadcrumbs){
-            $breadcrumbs->push('Ленты', '/feed/index');
-        });
 	}
 	
     public function index(Request $request)
@@ -47,12 +43,6 @@ class FeedController extends Controller
 			return $data;
 		});
 
-        Breadcrumbs::register('feed.category', function($breadcrumbs) use ($data){
-            foreach ($data['data']->parent_tree as $category){
-                $breadcrumbs->push($category->title, $category->full_url);
-            }
-        });
-
 		\View::share('sharing_type', 'category');
 		\View::share('sharing_id', $data['data']->id);
 
@@ -71,13 +61,6 @@ class FeedController extends Controller
                 return abort('404', 'Раздел не опубликован');
             }
         }
-
-        Breadcrumbs::register('feed.item', function($breadcrumbs) use ($data){
-            foreach ($data['data']->get_category->parent_tree as $category){
-                $breadcrumbs->push($category->title, $category->full_url);
-            }
-            $breadcrumbs->push($data['data']->title);
-        });
 
 		\View::share('sharing_type', 'feed');
 		\View::share('sharing_id', $data['data']->id);

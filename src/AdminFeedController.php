@@ -2,7 +2,6 @@
 
 namespace Larrock\ComponentFeed;
 
-use Breadcrumbs;
 use Illuminate\Routing\Controller;
 use Larrock\Core\Traits\AdminMethodsCreate;
 use Larrock\Core\Traits\AdminMethodsDestroy;
@@ -19,12 +18,10 @@ class AdminFeedController extends Controller
 
 	public function __construct()
 	{
+        $this->middleware(LarrockFeed::combineAdminMiddlewares());
         $this->config = LarrockFeed::shareConfig();
 
         \Config::set('breadcrumbs.view', 'larrock::admin.breadcrumb.breadcrumb');
-		Breadcrumbs::register('admin.'. LarrockFeed::getName() .'.index', function($breadcrumbs){
-			$breadcrumbs->push(LarrockFeed::getTitle(), '/admin/'. LarrockFeed::getName());
-		});
 	}
 
 	/**
@@ -50,14 +47,6 @@ class AdminFeedController extends Controller
         $data['category'] = LarrockCategory::getModel()->whereId($id)->with(['get_child', 'get_parent'])->first();
         $data['data'] = LarrockFeed::getModel()->whereCategory($data['category']->id)->orderByDesc('position')->orderByDesc('date')->paginate('30');
         $data['app_category'] = LarrockCategory::getConfig();
-
-		Breadcrumbs::register('admin.'. LarrockFeed::getName() .'.category', function($breadcrumbs, $data)
-		{
-			$breadcrumbs->parent('admin.'. LarrockFeed::getName() .'.index');
-            foreach($data->parent_tree as $item){
-                $breadcrumbs->push($item->title, '/admin/'. $item->component .'/'. $item->id);
-            }
-		});
 
 		return view('larrock::admin.admin-builder.categories', $data);
 	}
