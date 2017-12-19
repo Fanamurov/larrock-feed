@@ -36,5 +36,6 @@ class LarrockComponentFeedServiceProvider extends ServiceProvider
         });
 
         $this->app['router']->aliasMiddleware('AddSeofish', AddSeofish::class);
+        $this->app['router']->aliasMiddleware('AddFeedAnons', AddFeedAnons::class);
     }
 }
