@@ -24,7 +24,7 @@ class FeedController extends Controller
 			return $data;
 		});
 
-		return view('larrock::front.feed.index', $data);
+		return view(config('larrock.views.feed.index', 'larrock::front.feed.index'), $data);
 	}
 
 	public function show(Request $request)
@@ -46,7 +46,8 @@ class FeedController extends Controller
 		\View::share('sharing_type', 'category');
 		\View::share('sharing_id', $data['data']->id);
 
-		return view()->first(['larrock::front.feed.category.'. $category, 'larrock::front.feed.category'], $data);
+		return view()->first([config('larrock.views.feed.categoryUniq.'. $category, 'larrock::front.feed.category.'. $category),
+            config('larrock.views.feed.category', 'larrock::front.feed.category')], $data);
 	}
 
 	public function getItem($item)
@@ -65,6 +66,6 @@ class FeedController extends Controller
 		\View::share('sharing_type', 'feed');
 		\View::share('sharing_id', $data['data']->id);
 
-		return view()->first(['larrock::front.feed.'. $item, 'larrock::front.feed.item'], $data);
+		return view()->first([config('larrock.views.feed.itemUniq.'. $item, 'larrock::front.feed.'. $item), config('larrock.views.feed.item', 'larrock::front.feed.item')], $data);
 	}
 }
