@@ -3,6 +3,7 @@
 namespace Larrock\ComponentFeed;
 
 use Illuminate\Support\ServiceProvider;
+use Larrock\ComponentFeed\Middleware\AddFeedAnons;
 use Larrock\ComponentFeed\Middleware\AddSeofish;
 
 class LarrockComponentFeedServiceProvider extends ServiceProvider

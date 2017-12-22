@@ -8,16 +8,18 @@ use Larrock\Core\Traits\AdminMethodsDestroy;
 use Larrock\Core\Traits\AdminMethodsEdit;
 use Larrock\Core\Traits\AdminMethodsStore;
 use Larrock\Core\Traits\AdminMethodsUpdate;
+use Larrock\Core\Traits\ShareMethods;
 use View;
 use Larrock\ComponentFeed\Facades\LarrockFeed;
 use Larrock\ComponentCategory\Facades\LarrockCategory;
 
 class AdminFeedController extends Controller
 {
-    use AdminMethodsStore, AdminMethodsUpdate, AdminMethodsDestroy, AdminMethodsCreate, AdminMethodsEdit;
+    use AdminMethodsStore, AdminMethodsUpdate, AdminMethodsDestroy, AdminMethodsCreate, AdminMethodsEdit, ShareMethods;
 
 	public function __construct()
 	{
+	    $this->shareMethods();
         $this->middleware(LarrockFeed::combineAdminMiddlewares());
         $this->config = LarrockFeed::shareConfig();
 

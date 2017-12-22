@@ -1,7 +1,7 @@
 <?php
 
 Route::get('/feed/index', 'Larrock\ComponentFeed\FeedController@index')->name('feed.index');
-Route::get('//feed/{category?}/{subcategory?}/{subsubcategory?}/{subsubcategory2?}/{subsubcategory3?}',
+Route::get('/feed/{category?}/{subcategory?}/{subsubcategory?}/{subsubcategory2?}/{subsubcategory3?}',
     'Larrock\ComponentFeed\FeedController@show')->name('feed.show');
 
 Route::group(['prefix' => 'admin'], function(){

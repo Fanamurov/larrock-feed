@@ -8,10 +8,9 @@
 @endsection
 
 @section('content')
-    <div class="pageFeedCategory">
-        <div class="col-xs-24 row">
-            {!! Breadcrumbs::render('feed.category', $data) !!}
-        </div>
+    <div class="pageFeedCategory uk-position-relative">
+        {!! Breadcrumbs::render('feed.category', $data) !!}
+
         <div class="clearfix"></div><br/>
         @foreach($data->get_feedActive as $item)
             <div class="pageFeedCategory-item uk-grid">
