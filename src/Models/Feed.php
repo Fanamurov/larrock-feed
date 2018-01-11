@@ -92,6 +92,11 @@ class Feed extends Model implements HasMediaConversions
         'active' => 'integer'
     ];
 
+    public function getConfig()
+    {
+        return $this->config;
+    }
+
     public function scopeCategoryInfo()
     {
         return DB::table(LarrockFeed::getConfig()->table)
