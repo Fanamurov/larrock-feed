@@ -10,7 +10,7 @@ use Larrock\ComponentFeed\Models\Feed;
 use Larrock\Core\Helpers\FormBuilder\FormCategory;
 use Larrock\Core\Helpers\FormBuilder\FormDate;
 use Larrock\Core\Helpers\FormBuilder\FormInput;
-use Larrock\Core\Helpers\FormBuilder\FormTagsLink;
+use Larrock\Core\Helpers\FormBuilder\FormTags;
 use Larrock\Core\Helpers\FormBuilder\FormTextarea;
 use Larrock\Core\Component;
 use Larrock\Core\Helpers\Tree;
@@ -52,8 +52,8 @@ class FeedComponent extends Component
         $row = new FormDate('date', 'Дата материала');
         $this->rows['date'] = $row->setTab('other', 'Дата, вес, активность')->setFillable();
 
-        $row = new FormTagsLink('link', 'Связь');
-        $this->rows['link'] = $row->setModelParent($this->model)->setModelChild('Larrock\ComponentFeed\Models\Feed');
+        $row = new FormTags('link', 'Связь');
+        $this->rows['link'] = $row->setModels($this->model, Feed::class);
 
         return $this;
     }
