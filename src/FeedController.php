@@ -2,7 +2,7 @@
 
 namespace Larrock\ComponentFeed;
 
-use App\Http\Controllers\Controller;
+use Illuminate\Routing\Controller;
 use Larrock\ComponentCategory\Facades\LarrockCategory;
 use Larrock\ComponentFeed\Facades\LarrockFeed;
 use Cache;
@@ -59,7 +59,7 @@ class FeedController extends Controller
 
 		foreach ($data['data']->get_category->parent_tree as $category){
             if($category->active !== 1){
-                return abort('404', 'Раздел не опубликован');
+                throw new \Exception('Раздел '. $category->title .' не опубликован', 404);
             }
         }
 
