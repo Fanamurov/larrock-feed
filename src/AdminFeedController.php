@@ -22,7 +22,6 @@ class AdminFeedController extends Controller
 	    $this->shareMethods();
         $this->middleware(LarrockFeed::combineAdminMiddlewares());
         $this->config = LarrockFeed::shareConfig();
-
         \Config::set('breadcrumbs.view', 'larrock::admin.breadcrumb.breadcrumb');
 	}
 
@@ -49,7 +48,6 @@ class AdminFeedController extends Controller
         $data['category'] = LarrockCategory::getModel()->whereId($id)->with(['get_child', 'get_parent'])->first();
         $data['data'] = LarrockFeed::getModel()->whereCategory($data['category']->id)->orderByDesc('position')->orderByDesc('date')->paginate('30');
         $data['app_category'] = LarrockCategory::getConfig();
-
 		return view('larrock::admin.admin-builder.categories', $data);
 	}
 }

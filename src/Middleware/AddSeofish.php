@@ -10,14 +10,13 @@ class AddSeofish
 {
     /**
      * Handle an incoming request.
-     *
      * @param  \Illuminate\Http\Request  $request
      * @param  \Closure  $next
      * @return mixed
      */
     public function handle($request, Closure $next)
     {
-        $seofish = Cache::remember('seofish_mod', 1440, function() {
+        $seofish = Cache::rememberForever('seofish_mod', function() {
             return LarrockFeed::getModel()->whereCategory(config('larrock.feed.seofish_category_id'))->whereActive(1)->orderBy('position', 'DESC')->get();
         });
 
@@ -26,7 +25,6 @@ class AddSeofish
         }
 
         \View::share('seofish', $seofish);
-
         return $next($request);
     }
 }

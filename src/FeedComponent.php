@@ -60,7 +60,7 @@ class FeedComponent extends Component
 
     public function renderAdminMenu()
     {
-        $count = \Cache::remember('count-data-admin-'. LarrockFeed::getName(), 1440, function(){
+        $count = Cache::rememberForever('count-data-admin-'. LarrockFeed::getName(), function(){
             return LarrockFeed::getModel()->count(['id']);
         });
         $dropdown = Category::whereComponent('feed')->whereLevel(1)->orderBy('position', 'desc')->get(['id', 'title', 'url']);
@@ -82,7 +82,7 @@ class FeedComponent extends Component
 
     public function search($admin = NULL)
     {
-        return Cache::remember('search'. $this->name. $admin, 1440, function() use ($admin){
+        return Cache::rememberForever('search'. $this->name. $admin, function() use ($admin){
             $data = [];
             if($admin){
                 $items = LarrockFeed::getModel()->with(['get_category'])->get(['id', 'title', 'category', 'url']);
@@ -105,7 +105,7 @@ class FeedComponent extends Component
                     }
                 }
             }
-            if(count($data) === 0){
+            if(\count($data) === 0){
                 return NULL;
             }
             return $data;

@@ -10,14 +10,13 @@ class AddFeedAnons
 {
     /**
      * Handle an incoming request.
-     *
      * @param  \Illuminate\Http\Request  $request
      * @param  \Closure  $next
      * @return mixed
      */
     public function handle($request, Closure $next)
     {
-        $anons = Cache::remember('feedAnons_mod', 1440, function() {
+        $anons = Cache::rememberForever('feedAnons_mod', function() {
             return LarrockFeed::getModel()->whereCategory(config('larrock.feed.anonsCategory'))->whereActive(1)
                 ->take(config('larrock.feed.anonsCategoryLimit', 10))->orderBy('position', 'DESC')->get();
         });
@@ -27,7 +26,6 @@ class AddFeedAnons
         }
 
         \View::share('anons', $anons);
-
         return $next($request);
     }
 }
