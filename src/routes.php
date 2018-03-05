@@ -15,7 +15,11 @@ Breadcrumbs::register('admin.'. LarrockFeed::getName() .'.index', function($brea
 Breadcrumbs::register('admin.'. LarrockFeed::getName() .'.category', function($breadcrumbs, $data){
     $breadcrumbs->parent('admin.'. LarrockFeed::getName() .'.index');
     foreach($data->parent_tree as $item){
-        $breadcrumbs->push($item->title, '/admin/'. $item->component .'/'. $item->id);
+        $active = ' [Не опубликован!]';
+        if($item->active === 1){
+            $active = '';
+        }
+        $breadcrumbs->push($item->title . $active, '/admin/'. $item->component .'/'. $item->id);
     }
 });
 

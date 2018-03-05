@@ -3,9 +3,9 @@
 namespace Larrock\ComponentFeed;
 
 use Cache;
-use Larrock\ComponentCategory\Facades\LarrockCategory;
+use LarrockCategory;
 use Larrock\ComponentCategory\Models\Category;
-use Larrock\ComponentFeed\Facades\LarrockFeed;
+use LarrockFeed;
 use Larrock\ComponentFeed\Models\Feed;
 use Larrock\Core\Helpers\FormBuilder\FormCategory;
 use Larrock\Core\Helpers\FormBuilder\FormDate;
@@ -49,11 +49,11 @@ class FeedComponent extends Component
         $row = new FormTextarea('description', 'Полный текст');
         $this->rows['description'] = $row->setTypo()->setHelp('выводится на странице материала после анонса')->setFillable();
 
-        $row = new FormDate('date', 'Дата материала');
-        $this->rows['date'] = $row->setTab('other', 'Дата, вес, активность')->setFillable();
-
         $row = new FormTags('link', 'Связь');
         $this->rows['link'] = $row->setModels($this->model, Feed::class);
+
+        $row = new FormDate('date', 'Дата материала');
+        $this->rows['date'] = $row->setFillable()->setCssClassGroup('uk-width-1-3');
 
         return $this;
     }
@@ -63,15 +63,26 @@ class FeedComponent extends Component
         $count = Cache::rememberForever('count-data-admin-'. LarrockFeed::getName(), function(){
             return LarrockFeed::getModel()->count(['id']);
         });
-        $dropdown = Category::whereComponent('feed')->whereLevel(1)->orderBy('position', 'desc')->get(['id', 'title', 'url']);
-        return view('larrock::admin.sectionmenu.types.dropdown', ['count' => $count, 'app' => LarrockFeed::getConfig(), 'url' => '/admin/'. LarrockFeed::getName(), 'dropdown' => $dropdown]);
+        $dropdown = Category::whereComponent('feed')->whereLevel(1)
+            ->orderBy('position', 'desc')->get(['id', 'title', 'url']);
+        return view('larrock::admin.sectionmenu.types.dropdown', ['count' => $count, 'app' => LarrockFeed::getConfig(),
+            'url' => '/admin/'. LarrockFeed::getName(), 'dropdown' => $dropdown]);
+    }
+
+    public function toDashboard()
+    {
+        $data = Cache::rememberForever('LarrockFeedItemsDashboard', function(){
+            return LarrockFeed::getModel()->latest('updated_at')->take(5)->get();
+        });
+        return view('larrock::admin.dashboard.feed', ['component' => LarrockFeed::getConfig(), 'data' => $data]);
     }
 
     public function createSitemap()
     {
         $tree = new Tree();
         
-        if($activeCategory = $tree->listActiveCategories(LarrockCategory::getModel()->whereActive(1)->whereComponent('feed')->whereParent(NULL)->get())){
+        if($activeCategory = $tree->listActiveCategories(LarrockCategory::getModel()->whereActive(1)
+            ->whereComponent('feed')->whereParent(NULL)->get())){
             $table = LarrockCategory::getConfig()->table;
             return LarrockFeed::getModel()->whereActive(1)->whereHas('get_category', function ($q) use ($activeCategory, $table){
                 $q->where($table .'.sitemap', '=', 1)->whereIn($table .'.id', $activeCategory);

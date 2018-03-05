@@ -3,8 +3,8 @@
 namespace Larrock\ComponentFeed;
 
 use Illuminate\Routing\Controller;
-use Larrock\ComponentCategory\Facades\LarrockCategory;
-use Larrock\ComponentFeed\Facades\LarrockFeed;
+use LarrockCategory;
+use LarrockFeed;
 use Cache;
 use Illuminate\Http\Request;
 

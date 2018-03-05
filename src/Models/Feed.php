@@ -5,7 +5,7 @@ namespace Larrock\ComponentFeed\Models;
 use Cache;
 use Larrock\Core\Helpers\Plugins\RenderPlugins;
 use Illuminate\Database\Eloquent\Model;
-use Larrock\ComponentCategory\Facades\LarrockCategory;
+use LarrockCategory;
 use Larrock\Core\Traits\GetFilesAndImages;
 use Larrock\Core\Traits\GetLink;
 use Larrock\Core\Traits\GetSeo;
@@ -14,7 +14,7 @@ use Larrock\Core\Component;
 use DB;
 use Spatie\MediaLibrary\HasMedia\HasMediaTrait;
 use Spatie\MediaLibrary\HasMedia\Interfaces\HasMediaConversions;
-use Larrock\ComponentFeed\Facades\LarrockFeed;
+use LarrockFeed;
 
 /**
  * Larrock\ComponentFeed\Models\Feed
@@ -46,6 +46,8 @@ use Larrock\ComponentFeed\Facades\LarrockFeed;
  * @property-read \Illuminate\Database\Eloquent\Collection|\Spatie\MediaLibrary\Media[] $media
  * @mixin \Eloquent
  * @property integer $user_id
+ * @property mixed $short_render
+ * @property mixed $description_render
  * @property-read mixed $first_image
  * @property-read mixed $full_url
  * @method static \Illuminate\Database\Query\Builder|\Larrock\ComponentFeed\Models\Feed whereUserId($value)
@@ -116,7 +118,7 @@ class Feed extends Model implements HasMediaConversions
 
     public function getFullUrlAttribute()
     {
-        return Cache::remember('url_feed'. $this->id, 1440, function() {
+        return Cache::rememberForever('url_feed'. $this->id, function() {
             $url = '/feed';
             foreach ($this->get_category()->first()->parent_tree as $category){
                 $url .= '/'. $category->url;
@@ -128,7 +130,6 @@ class Feed extends Model implements HasMediaConversions
 
     /**
      * Замена тегов плагинов на их данные
-     *
      * @return mixed
      */
     public function getShortRenderAttribute()
@@ -138,7 +139,7 @@ class Feed extends Model implements HasMediaConversions
             $cache_key .= '-'. \Auth::user()->role->first()->level;
         }
 
-        return \Cache::remember($cache_key, 1440, function(){
+        return Cache::rememberForever($cache_key, function(){
             $renderPlugins = new RenderPlugins($this->short, $this);
             $render = $renderPlugins->renderBlocks()->renderImageGallery()->renderFilesGallery();
             return $render->rendered_html;
@@ -147,7 +148,6 @@ class Feed extends Model implements HasMediaConversions
 
     /**
      * Замена тегов плагинов на их данные
-     *
      * @return mixed
      */
     public function getDescriptionRenderAttribute()
@@ -157,7 +157,7 @@ class Feed extends Model implements HasMediaConversions
             $cache_key .= '-'. \Auth::user()->role->first()->level;
         }
 
-        return \Cache::remember($cache_key, 1440, function(){
+        return Cache::rememberForever($cache_key, function(){
             $renderPlugins = new RenderPlugins($this->description, $this);
             $render = $renderPlugins->renderBlocks()->renderImageGallery()->renderFilesGallery();
             return $render->rendered_html;

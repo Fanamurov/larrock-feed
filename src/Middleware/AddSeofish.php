@@ -4,7 +4,7 @@ namespace Larrock\ComponentFeed\Middleware;
 
 use Cache;
 use Closure;
-use Larrock\ComponentFeed\Facades\LarrockFeed;
+use LarrockFeed;
 
 class AddSeofish
 {
