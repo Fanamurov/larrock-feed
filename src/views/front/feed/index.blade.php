@@ -24,7 +24,7 @@
                     @role('Админ|Модератор')
                     <a class="editAdmin" href="/admin/feed/{{ $item->id }}/edit">Редактировать</a>
                     @endrole
-                    <h4><a href="/blog/{{ $item->get_category->url }}/{{ $item->url }}">{{ $item->title }}</a></h4>
+                    <h4><a href="/blog/{{ $item->getCategory->url }}/{{ $item->url }}">{{ $item->title }}</a></h4>
                     <div class="pageBlogCategory-item_short">{!! $data->short_render !!}</div>
                 </div>
             </div>

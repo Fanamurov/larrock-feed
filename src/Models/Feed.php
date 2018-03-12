@@ -49,6 +49,8 @@ use Spatie\MediaLibrary\Media;
  * @property integer $user_id
  * @property mixed $short_render
  * @property mixed $description_render
+ * @property mixed $getCategory
+ * @property mixed $getCategoryActive
  * @property-read mixed $first_image
  * @property-read mixed $full_url
  * @method static \Illuminate\Database\Query\Builder|\Larrock\ComponentFeed\Models\Feed whereUserId($value)
@@ -107,12 +109,12 @@ class Feed extends Model implements HasMediaConversions
             ->get();
     }
 
-    public function get_category()
+    public function getCategory()
     {
         return $this->hasOne(LarrockCategory::getModelName(), 'id', 'category');
     }
 
-    public function get_categoryActive()
+    public function getCategoryActive()
     {
         return $this->hasOne(LarrockCategory::getModelName(), 'id', 'category')->whereActive('1');
     }
@@ -121,7 +123,7 @@ class Feed extends Model implements HasMediaConversions
     {
         return Cache::rememberForever('url_feed'. $this->id, function() {
             $url = '/feed';
-            foreach ($this->get_category()->first()->parent_tree as $category){
+            foreach ($this->getCategory()->first()->parent_tree as $category){
                 $url .= '/'. $category->url;
             }
             $url .= '/'. $this->url;
@@ -132,6 +134,7 @@ class Feed extends Model implements HasMediaConversions
     /**
      * Замена тегов плагинов на их данные
      * @return mixed
+     * @throws \Throwable
      */
     public function getShortRenderAttribute()
     {
@@ -150,6 +153,7 @@ class Feed extends Model implements HasMediaConversions
     /**
      * Замена тегов плагинов на их данные
      * @return mixed
+     * @throws \Throwable
      */
     public function getDescriptionRenderAttribute()
     {

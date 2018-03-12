@@ -12,7 +12,7 @@
         {!! Breadcrumbs::render('feed.category', $data) !!}
 
         <div class="clearfix"></div><br/>
-        @foreach($data->get_feedActive as $item)
+        @foreach($data->getFeedActive as $item)
             <div class="pageFeedCategory-item uk-grid">
                 <div class="uk-width-1-1 uk-width-medium-2-10">
                     <p class="date uk-text-muted uk-text-right">{!! \Carbon\Carbon::parse($item->date)->format('d.m.Y') !!}г.</p>
@@ -27,7 +27,7 @@
             </div>
         @endforeach
 
-        @foreach($data->get_childActive as $item)
+        @foreach($data->getChildActive as $item)
             <div class="pageFeedCategory-item uk-grid">
                 <div class="uk-width-1-1 uk-position-relative">
                     @role('Админ|Модератор')
@@ -39,5 +39,5 @@
             </div>
         @endforeach
     </div>
-    {!! $data->get_feedActive->render() !!}
+    {!! $data->getFeedActive->render() !!}
 @endsection

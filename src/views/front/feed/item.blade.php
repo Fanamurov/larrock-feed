@@ -3,7 +3,7 @@
     @if($seo_midd['url'])
         {{ $seo_midd['url'] }}
     @else
-        {{ $data->get_seo_title or $data->title }}. {{ $data->get_category->title }} {{ $seo_midd['postfix_global'] }}
+        {{ $data->get_seo_title or $data->title }}. {{ $data->getCategory->title }} {{ $seo_midd['postfix_global'] }}
     @endif
 @endsection
 @section('description') {!! strip_tags($data->short) !!} @endsection
@@ -27,7 +27,7 @@
 
 @section('contentBottom')
     <div class="uk-text-right">
-        <a class="uk-button" href="{{ $data->get_category->full_url }}">Назад к разделу</a>
+        <a class="uk-button" href="{{ $data->getCategory->full_url }}">Назад к разделу</a>
     </div>
     <div class="uk-clearfix"></div>
 @endsection

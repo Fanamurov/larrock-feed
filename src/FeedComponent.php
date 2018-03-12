@@ -36,7 +36,7 @@ class FeedComponent extends Component
     {
         $row = new FormCategory('category', 'Раздел');
         $this->rows['category'] = $row->setValid('required')
-            ->setConnect(Category::class, 'get_category')->setWhereConnect('component', 'feed')
+            ->setConnect(Category::class, 'getCategory')->setWhereConnect('component', 'feed')
             ->setMaxItems(1)->setFillable();
 
         $row = new FormInput('title', 'Заголовок');
@@ -86,7 +86,7 @@ class FeedComponent extends Component
         if($activeCategory = $tree->listActiveCategories(LarrockCategory::getModel()->whereActive(1)
             ->whereComponent('feed')->whereParent(NULL)->get())){
             $table = LarrockCategory::getConfig()->table;
-            return LarrockFeed::getModel()->whereActive(1)->whereHas('get_category', function ($q) use ($activeCategory, $table){
+            return LarrockFeed::getModel()->whereActive(1)->whereHas('getCategory', function ($q) use ($activeCategory, $table){
                 $q->where($table .'.sitemap', '=', 1)->whereIn($table .'.id', $activeCategory);
             })->get();
         }
@@ -98,9 +98,9 @@ class FeedComponent extends Component
         return Cache::rememberForever('search'. $this->name. $admin, function() use ($admin){
             $data = [];
             if($admin){
-                $items = LarrockFeed::getModel()->with(['get_category'])->get(['id', 'title', 'category', 'url']);
+                $items = LarrockFeed::getModel()->with(['getCategory'])->get(['id', 'title', 'category', 'url']);
             }else{
-                $items = LarrockFeed::getModel()->whereActive(1)->with(['get_categoryActive'])->get(['id', 'title', 'category', 'url']);
+                $items = LarrockFeed::getModel()->whereActive(1)->with(['getCategoryActive'])->get(['id', 'title', 'category', 'url']);
             }
             foreach ($items as $item){
                 $data[$item->id]['id'] = $item->id;
@@ -109,12 +109,12 @@ class FeedComponent extends Component
                 $data[$item->id]['component'] = $this->name;
                 $data[$item->id]['category'] = NULL;
                 if($admin){
-                    if($item->get_category){
-                        $data[$item->id]['category'] = $item->get_category->title;
+                    if($item->getCategory){
+                        $data[$item->id]['category'] = $item->getCategory->title;
                     }
                 }else{
-                    if($item->get_categoryActive){
-                        $data[$item->id]['category'] = $item->get_categoryActive->title;
+                    if($item->getCategoryActive){
+                        $data[$item->id]['category'] = $item->getCategoryActive->title;
                     }
                 }
             }
