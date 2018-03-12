@@ -63,8 +63,10 @@ class FeedComponent extends Component
         $count = Cache::rememberForever('count-data-admin-'. LarrockFeed::getName(), function(){
             return LarrockFeed::getModel()->count(['id']);
         });
-        $dropdown = Category::whereComponent('feed')->whereLevel(1)
-            ->orderBy('position', 'desc')->get(['id', 'title', 'url']);
+        $dropdown = Cache::rememberForever('dropdownAdminMenu'. LarrockFeed::getName(), function () {
+            return Category::whereComponent('feed')->whereLevel(1)
+                ->orderBy('position', 'desc')->get(['id', 'title', 'url']);
+        });
         return view('larrock::admin.sectionmenu.types.dropdown', ['count' => $count, 'app' => LarrockFeed::getConfig(),
             'url' => '/admin/'. LarrockFeed::getName(), 'dropdown' => $dropdown]);
     }
