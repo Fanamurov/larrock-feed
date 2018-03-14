@@ -16,7 +16,6 @@
         }
     },
     "require": {
-        "fanamurov/larrock-core": "^1.0",
         "fanamurov/larrock-category": "^1.0"
     },
     "extra": {
