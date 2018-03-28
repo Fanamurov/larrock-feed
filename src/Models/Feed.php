@@ -12,10 +12,9 @@ use Larrock\Core\Traits\GetSeo;
 use Nicolaslopezj\Searchable\SearchableTrait;
 use Larrock\Core\Component;
 use DB;
-use Spatie\MediaLibrary\HasMedia\HasMediaTrait;
-use Spatie\MediaLibrary\HasMedia\Interfaces\HasMediaConversions;
+use Spatie\MediaLibrary\HasMedia\HasMedia;
 use LarrockFeed;
-use Spatie\MediaLibrary\Media;
+use Spatie\MediaLibrary\Models\Media;
 
 /**
  * Larrock\ComponentFeed\Models\Feed
@@ -44,7 +43,7 @@ use Spatie\MediaLibrary\Media;
  * @method static \Illuminate\Database\Query\Builder|\Larrock\ComponentFeed\Models\Feed whereUpdatedAt($value)
  * @method static \Illuminate\Database\Query\Builder|\Larrock\ComponentFeed\Models\Feed find($value)
  * @method static \Illuminate\Database\Query\Builder|\Larrock\ComponentFeed\Models\Feed categoryInfo()
- * @property-read \Illuminate\Database\Eloquent\Collection|\Spatie\MediaLibrary\Media[] $media
+ * @property-read \Illuminate\Database\Eloquent\Collection|\Spatie\MediaLibrary\Models\Media[] $media
  * @mixin \Eloquent
  * @property integer $user_id
  * @property mixed $short_render
@@ -58,18 +57,12 @@ use Spatie\MediaLibrary\Media;
  * @method static \Illuminate\Database\Query\Builder|\Larrock\ComponentFeed\Models\Feed search($search, $threshold = null, $entireText = false, $entireTextOnly = false)
  * @method static \Illuminate\Database\Query\Builder|\Larrock\ComponentFeed\Models\Feed searchRestricted($search, $restriction, $threshold = null, $entireText = false, $entireTextOnly = false)
  */
-class Feed extends Model implements HasMediaConversions
+class Feed extends Model implements HasMedia
 {
-    /**
-     * @var $this Component
-     */
+    /** @var $this Component */
     protected $config;
 
-    use HasMediaTrait;
-    use GetFilesAndImages;
-    use GetSeo;
-    use SearchableTrait;
-    use GetLink;
+    use GetFilesAndImages, GetSeo, SearchableTrait, GetLink;
 
     public function __construct(array $attributes = [])
     {
@@ -182,16 +175,12 @@ class Feed extends Model implements HasMediaConversions
                 ? $this->media
                 : collect($this->unAttachedMediaLibraryItems)->pluck('media');
 
-            return $collection
-                ->filter(function (Media $mediaItem) use ($collectionName) {
-                    if ($collectionName == '') {
+            return $collection->filter(function (Media $mediaItem) use ($collectionName) {
+                    if ($collectionName === '') {
                         return true;
                     }
-
                     return $mediaItem->collection_name === $collectionName;
-                })
-                ->sortBy('order_column')
-                ->values();
+                })->sortBy('order_column')->values();
         });
     }
 }
