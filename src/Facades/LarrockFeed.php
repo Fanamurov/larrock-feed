@@ -13,5 +13,4 @@ class LarrockFeed extends Facade
     {
         return 'larrockfeed';
     }
-
 }
