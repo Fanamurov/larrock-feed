@@ -3,17 +3,17 @@
 namespace Larrock\ComponentFeed;
 
 use Cache;
-use LarrockCategory;
-use Larrock\ComponentCategory\Models\Category;
 use LarrockFeed;
-use Larrock\ComponentFeed\Models\Feed;
-use Larrock\Core\Helpers\FormBuilder\FormCategory;
-use Larrock\Core\Helpers\FormBuilder\FormDate;
-use Larrock\Core\Helpers\FormBuilder\FormInput;
-use Larrock\Core\Helpers\FormBuilder\FormTags;
-use Larrock\Core\Helpers\FormBuilder\FormTextarea;
+use LarrockCategory;
 use Larrock\Core\Component;
 use Larrock\Core\Helpers\Tree;
+use Larrock\ComponentFeed\Models\Feed;
+use Larrock\ComponentCategory\Models\Category;
+use Larrock\Core\Helpers\FormBuilder\FormDate;
+use Larrock\Core\Helpers\FormBuilder\FormTags;
+use Larrock\Core\Helpers\FormBuilder\FormInput;
+use Larrock\Core\Helpers\FormBuilder\FormCategory;
+use Larrock\Core\Helpers\FormBuilder\FormTextarea;
 
 class FeedComponent extends Component
 {
@@ -29,6 +29,7 @@ class FeedComponent extends Component
     protected function addPlugins()
     {
         $this->addPluginImages()->addPluginFiles()->addPluginSeo()->addAnonsToModule(config('larrock.feed.anonsCategory'));
+
         return $this;
     }
 
@@ -59,67 +60,72 @@ class FeedComponent extends Component
 
     public function renderAdminMenu()
     {
-        $count = Cache::rememberForever('count-data-admin-'. LarrockFeed::getName(), function(){
+        $count = Cache::rememberForever('count-data-admin-'.LarrockFeed::getName(), function () {
             return LarrockFeed::getModel()->count(['id']);
         });
-        $dropdown = Cache::rememberForever('dropdownAdminMenu'. LarrockFeed::getName(), function () {
+        $dropdown = Cache::rememberForever('dropdownAdminMenu'.LarrockFeed::getName(), function () {
             return Category::whereComponent('feed')->whereLevel(1)
                 ->orderBy('position', 'desc')->get(['id', 'title', 'url']);
         });
+
         return view('larrock::admin.sectionmenu.types.dropdown', ['count' => $count, 'app' => LarrockFeed::getConfig(),
-            'url' => '/admin/'. LarrockFeed::getName(), 'dropdown' => $dropdown]);
+            'url' => '/admin/'.LarrockFeed::getName(), 'dropdown' => $dropdown, ]);
     }
 
     public function toDashboard()
     {
-        $data = Cache::rememberForever('LarrockFeedItemsDashboard', function(){
+        $data = Cache::rememberForever('LarrockFeedItemsDashboard', function () {
             return LarrockFeed::getModel()->latest('updated_at')->take(5)->get();
         });
+
         return view('larrock::admin.dashboard.feed', ['component' => LarrockFeed::getConfig(), 'data' => $data]);
     }
 
     public function createSitemap()
     {
         $tree = new Tree();
-        
-        if($activeCategory = $tree->listActiveCategories(LarrockCategory::getModel()->whereActive(1)
-            ->whereComponent('feed')->whereParent(NULL)->get())){
+
+        if ($activeCategory = $tree->listActiveCategories(LarrockCategory::getModel()->whereActive(1)
+            ->whereComponent('feed')->whereParent(null)->get())) {
             $table = LarrockCategory::getConfig()->table;
-            return LarrockFeed::getModel()->whereActive(1)->whereHas('getCategory', function ($q) use ($activeCategory, $table){
-                $q->where($table .'.sitemap', '=', 1)->whereIn($table .'.id', $activeCategory);
+
+            return LarrockFeed::getModel()->whereActive(1)->whereHas('getCategory', function ($q) use ($activeCategory, $table) {
+                $q->where($table.'.sitemap', '=', 1)->whereIn($table.'.id', $activeCategory);
             })->get();
         }
+
         return [];
     }
 
-    public function search($admin = NULL)
+    public function search($admin = null)
     {
-        return Cache::rememberForever('search'. $this->name. $admin, function() use ($admin){
+        return Cache::rememberForever('search'.$this->name.$admin, function () use ($admin) {
             $data = [];
-            if($admin){
+            if ($admin) {
                 $items = LarrockFeed::getModel()->with(['getCategory'])->get(['id', 'title', 'category', 'url']);
-            }else{
+            } else {
                 $items = LarrockFeed::getModel()->whereActive(1)->with(['getCategoryActive'])->get(['id', 'title', 'category', 'url']);
             }
-            foreach ($items as $item){
+            foreach ($items as $item) {
                 $data[$item->id]['id'] = $item->id;
                 $data[$item->id]['title'] = $item->title;
                 $data[$item->id]['full_url'] = $item->full_url;
                 $data[$item->id]['component'] = $this->name;
-                $data[$item->id]['category'] = NULL;
-                if($admin){
-                    if($item->getCategory){
+                $data[$item->id]['category'] = null;
+                if ($admin) {
+                    if ($item->getCategory) {
                         $data[$item->id]['category'] = $item->getCategory->title;
                     }
-                }else{
-                    if($item->getCategoryActive){
+                } else {
+                    if ($item->getCategoryActive) {
                         $data[$item->id]['category'] = $item->getCategoryActive->title;
                     }
                 }
             }
-            if(\count($data) === 0){
-                return NULL;
+            if (\count($data) === 0) {
+                return null;
             }
+
             return $data;
         });
     }

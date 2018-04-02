@@ -3,8 +3,8 @@
 namespace Larrock\ComponentFeed;
 
 use Illuminate\Support\ServiceProvider;
-use Larrock\ComponentFeed\Middleware\AddFeedAnons;
 use Larrock\ComponentFeed\Middleware\AddSeofish;
+use Larrock\ComponentFeed\Middleware\AddFeedAnons;
 
 class LarrockComponentFeedServiceProvider extends ServiceProvider
 {
@@ -18,7 +18,7 @@ class LarrockComponentFeedServiceProvider extends ServiceProvider
         $this->loadViewsFrom(__DIR__.'/../views', 'larrock');
         $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
         $this->publishes([
-            __DIR__.'/../views' => base_path('resources/views/vendor/larrock')
+            __DIR__.'/../views' => base_path('resources/views/vendor/larrock'),
         ]);
     }
 
@@ -28,8 +28,9 @@ class LarrockComponentFeedServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        $this->app->singleton('larrockfeed', function() {
+        $this->app->singleton('larrockfeed', function () {
             $class = config('larrock.components.feed', FeedComponent::class);
+
             return new $class;
         });
 
