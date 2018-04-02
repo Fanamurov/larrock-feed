@@ -35,25 +35,24 @@ class FeedComponent extends Component
     protected function addRows()
     {
         $row = new FormCategory('category', 'Раздел');
-        $this->rows['category'] = $row->setValid('required')
-            ->setConnect(Category::class, 'getCategory')->setWhereConnect('component', 'feed')
-            ->setMaxItems(1)->setFillable();
+        $this->setRow($row->setValid('required')->setConnect(Category::class, 'getCategory')
+            ->setWhereConnect('component', 'feed')->setMaxItems(1)->setFillable());
 
         $row = new FormInput('title', 'Заголовок');
-        $this->rows['title'] = $row->setValid('max:255|required')->setTypo()->setFillable();
+        $this->setRow($row->setValid('max:255|required')->setTypo()->setFillable());
 
         $row = new FormTextarea('short', 'Анонс');
-        $this->rows['short'] = $row->setTypo()->setHelp('выводится на странице списка материалов, а так же в начале материала')
-            ->setFillable();
+        $this->setRow($row->setTypo()->setHelp('выводится на странице списка материалов, а так же в начале материала')
+            ->setFillable());
 
         $row = new FormTextarea('description', 'Полный текст');
-        $this->rows['description'] = $row->setTypo()->setHelp('выводится на странице материала после анонса')->setFillable();
+        $this->setRow($row->setTypo()->setHelp('выводится на странице материала после анонса')->setFillable());
 
         $row = new FormTags('link', 'Связь');
-        $this->rows['link'] = $row->setModels($this->model, Feed::class);
+        $this->setRow($row->setModels($this->model, Feed::class));
 
         $row = new FormDate('date', 'Дата материала');
-        $this->rows['date'] = $row->setFillable()->setCssClassGroup('uk-width-1-3');
+        $this->setRow($row->setFillable()->setCssClassGroup('uk-width-1-3'));
 
         return $this;
     }
