@@ -57,7 +57,7 @@ class FeedComponent extends Component
         $this->setRow($row->setFillable()->setCssClassGroup('uk-width-1-3'));
 
         $row = new FormHidden('user_id', 'user_id');
-        $this->setRow($row->setFillable();
+        $this->setRow($row->setFillable());
 
         return $this;
     }
