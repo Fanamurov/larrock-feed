@@ -3,8 +3,6 @@
 namespace Larrock\ComponentFeed;
 
 use Cache;
-use Illuminate\Support\Facades\Auth;
-use Larrock\Core\Helpers\FormBuilder\FormHidden;
 use LarrockFeed;
 use LarrockCategory;
 use Larrock\Core\Component;
@@ -14,6 +12,7 @@ use Larrock\ComponentCategory\Models\Category;
 use Larrock\Core\Helpers\FormBuilder\FormDate;
 use Larrock\Core\Helpers\FormBuilder\FormTags;
 use Larrock\Core\Helpers\FormBuilder\FormInput;
+use Larrock\Core\Helpers\FormBuilder\FormHidden;
 use Larrock\Core\Helpers\FormBuilder\FormCategory;
 use Larrock\Core\Helpers\FormBuilder\FormTextarea;
 
@@ -58,7 +57,7 @@ class FeedComponent extends Component
         $this->setRow($row->setFillable()->setCssClassGroup('uk-width-1-3'));
 
         $row = new FormHidden('user_id', 'user_id');
-        $this->setRow($row->setFillable()->setDefaultValue(Auth::id()));
+        $this->setRow($row->setFillable();
 
         return $this;
     }
