@@ -3,6 +3,8 @@
 namespace Larrock\ComponentFeed;
 
 use Cache;
+use Illuminate\Support\Facades\Auth;
+use Larrock\Core\Helpers\FormBuilder\FormHidden;
 use LarrockFeed;
 use LarrockCategory;
 use Larrock\Core\Component;
@@ -54,6 +56,9 @@ class FeedComponent extends Component
 
         $row = new FormDate('date', 'Дата материала');
         $this->setRow($row->setFillable()->setCssClassGroup('uk-width-1-3'));
+
+        $row = new FormHidden('user_id', 'user_id');
+        $this->setRow($row->setFillable()->setDefaultValue(Auth::id()));
 
         return $this;
     }
