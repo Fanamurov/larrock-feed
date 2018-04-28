@@ -4,12 +4,12 @@ namespace Larrock\ComponentFeed\Models;
 
 use DB;
 use Cache;
-use Larrock\Core\Traits\GetAdminLink;
 use LarrockFeed;
 use LarrockCategory;
 use Larrock\Core\Component;
 use Larrock\Core\Traits\GetSeo;
 use Larrock\Core\Traits\GetLink;
+use Larrock\Core\Traits\GetAdminLink;
 use Spatie\MediaLibrary\Models\Media;
 use Illuminate\Database\Eloquent\Model;
 use Larrock\Core\Traits\GetFilesAndImages;
