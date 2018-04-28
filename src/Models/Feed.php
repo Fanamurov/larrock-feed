@@ -4,6 +4,7 @@ namespace Larrock\ComponentFeed\Models;
 
 use DB;
 use Cache;
+use Larrock\Core\Traits\GetAdminLink;
 use LarrockFeed;
 use LarrockCategory;
 use Larrock\Core\Component;
@@ -62,7 +63,7 @@ class Feed extends Model implements HasMedia
     /** @var $this Component */
     protected $config;
 
-    use GetFilesAndImages, GetSeo, SearchableTrait, GetLink;
+    use GetFilesAndImages, GetSeo, SearchableTrait, GetLink, GetAdminLink;
 
     public function __construct(array $attributes = [])
     {

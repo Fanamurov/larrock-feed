@@ -100,37 +100,4 @@ class FeedComponent extends Component
 
         return [];
     }
-
-    public function search($admin = null)
-    {
-        return Cache::rememberForever('search'.$this->name.$admin, function () use ($admin) {
-            $data = [];
-            if ($admin) {
-                $items = LarrockFeed::getModel()->with(['getCategory'])->get(['id', 'title', 'category', 'url']);
-            } else {
-                $items = LarrockFeed::getModel()->whereActive(1)->with(['getCategoryActive'])->get(['id', 'title', 'category', 'url']);
-            }
-            foreach ($items as $item) {
-                $data[$item->id]['id'] = $item->id;
-                $data[$item->id]['title'] = $item->title;
-                $data[$item->id]['full_url'] = $item->full_url;
-                $data[$item->id]['component'] = $this->name;
-                $data[$item->id]['category'] = null;
-                if ($admin) {
-                    if ($item->getCategory) {
-                        $data[$item->id]['category'] = $item->getCategory->title;
-                    }
-                } else {
-                    if ($item->getCategoryActive) {
-                        $data[$item->id]['category'] = $item->getCategoryActive->title;
-                    }
-                }
-            }
-            if (\count($data) === 0) {
-                return null;
-            }
-
-            return $data;
-        });
-    }
 }
