@@ -18,6 +18,7 @@ class CreateFeedTable extends Migration {
 			$table->string('title');
 			$table->integer('category')->unsigned()->index('feed_category_foreign');
 			$table->text('short')->nullable();
+			$table->text('anons_merge')->nullable();
 			$table->text('description')->nullable();
 			$table->string('url', 191)->unique();
 			$table->dateTime('date');
