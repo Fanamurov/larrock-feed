@@ -34,7 +34,7 @@ Breadcrumbs::register('feed.category', function ($breadcrumbs, $data) {
 });
 
 Breadcrumbs::register('feed.item', function ($breadcrumbs, $data) {
-    foreach ($data->get_category->parent_tree as $category) {
+    foreach ($data->getCategory->parent_tree as $category) {
         $breadcrumbs->push($category->title, $category->full_url);
     }
     $breadcrumbs->push($data->title);
